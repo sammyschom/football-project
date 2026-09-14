@@ -216,3 +216,31 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+======= Added in 14/09 =======
+
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local data
+data/raw/*
+data/processed/*
+
+# DuckDB
+*.duckdb
+*.duckdb.wal
+
+# Environment variables / secrets
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
