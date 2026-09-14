@@ -1,0 +1,11 @@
+[project]
+name = "football-ml-project"
+version = "0.1.0"
+description = "Football machine learning and data analysis project"
+requires-python = ">=3.9"
+
+dependencies = [
+    "pandas",
+    "duckdb",
+    "requests",
+]
