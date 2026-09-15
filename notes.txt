@@ -1,0 +1,9 @@
+========================================
+DOWNLOAD COMPLETE
+========================================
+Matches processed:     3961
+Events downloaded:     3488
+Lineups downloaded:    3488
+360 files downloaded:  391
+Failures:              0
+========================================
