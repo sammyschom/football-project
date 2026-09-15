@@ -222,8 +222,10 @@ __marimo__/
 
 ======= Added in 14/09 =======
 
-# Virtual environment
+# Local virtual environments
 .venv/
+venv/
+env/
 
 # Python cache
 __pycache__/
@@ -235,14 +237,24 @@ __pycache__/
 # Local data
 data/raw/*
 data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
 
 # DuckDB
 *.duckdb
 *.duckdb.wal
+*.duckdb.tmp
 
-# Environment variables / secrets
+# Environment variables
 .env
+.env.*
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# Editor files
+.vscode/
+
+# Generated packaging files
+*.egg-info/
