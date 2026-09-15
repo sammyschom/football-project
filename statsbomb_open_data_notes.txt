@@ -1,0 +1,121 @@
+STATSBOMB NOTES
+
+========================================
+DOWNLOAD COMPLETE
+========================================
+Matches processed:     3961
+Events downloaded:     3488
+Lineups downloaded:    3488
+360 files downloaded:  391
+Failures:              0
+========================================
+
+(.venv) schom@Samuels-MacBook-Pro football-project % "/Users/schom/Football Project/football-project/
+.venv/bin/python" "/Users/schom/Football Project/football-project/src/sqp_query_practice.py"
+
+Tables:
+     table_name
+0  competitions
+1        events
+2       lineups
+3       matches
+
+--- competitions ---
+   row_count
+0         80
+                  column_name column_type null   key default extra
+0              competition_id      BIGINT  YES  None    None  None
+1                   season_id      BIGINT  YES  None    None  None
+2                country_name     VARCHAR  YES  None    None  None
+3            competition_name     VARCHAR  YES  None    None  None
+4          competition_gender     VARCHAR  YES  None    None  None
+5           competition_youth     BOOLEAN  YES  None    None  None
+6   competition_international     BOOLEAN  YES  None    None  None
+7                 season_name     VARCHAR  YES  None    None  None
+8               match_updated     VARCHAR  YES  None    None  None
+9           match_updated_360     VARCHAR  YES  None    None  None
+10        match_available_360     VARCHAR  YES  None    None  None
+11            match_available     VARCHAR  YES  None    None  None
+12                   filename     VARCHAR  YES  None    None  None
+
+--- matches ---
+   row_count
+0       3961
+          column_name                                        column_type null   key default extra
+0            match_id                                             BIGINT  YES  None    None  None
+1          match_date                                               DATE  YES  None    None  None
+2            kick_off                                               TIME  YES  None    None  None
+3         competition  STRUCT(competition_id BIGINT, country_name VAR...  YES  None    None  None
+4              season      STRUCT(season_id BIGINT, season_name VARCHAR)  YES  None    None  None
+5           home_team  STRUCT(home_team_id BIGINT, home_team_name VAR...  YES  None    None  None
+6           away_team  STRUCT(away_team_id BIGINT, away_team_name VAR...  YES  None    None  None
+7          home_score                                             BIGINT  YES  None    None  None
+8          away_score                                             BIGINT  YES  None    None  None
+9        match_status                                            VARCHAR  YES  None    None  None
+10   match_status_360                                            VARCHAR  YES  None    None  None
+11       last_updated                                            VARCHAR  YES  None    None  None
+12   last_updated_360                                            VARCHAR  YES  None    None  None
+13           metadata  STRUCT(data_version VARCHAR, shot_fidelity_ver...  YES  None    None  None
+14         match_week                                             BIGINT  YES  None    None  None
+15  competition_stage                  STRUCT(id BIGINT, "name" VARCHAR)  YES  None    None  None
+16            stadium  STRUCT(id BIGINT, "name" VARCHAR, country STRU...  YES  None    None  None
+17            referee  STRUCT(id BIGINT, "name" VARCHAR, country STRU...  YES  None    None  None
+18           filename                                            VARCHAR  YES  None    None  None
+
+--- events ---
+   row_count
+0   13911986
+        column_name                                        column_type null   key default extra
+0                id                                               UUID  YES  None    None  None
+1             index                                             BIGINT  YES  None    None  None
+2            period                                             BIGINT  YES  None    None  None
+3         timestamp                                               TIME  YES  None    None  None
+4            minute                                             BIGINT  YES  None    None  None
+5            second                                             BIGINT  YES  None    None  None
+6              type                  STRUCT(id BIGINT, "name" VARCHAR)  YES  None    None  None
+7        possession                                             BIGINT  YES  None    None  None
+8   possession_team                  STRUCT(id BIGINT, "name" VARCHAR)  YES  None    None  None
+9      play_pattern                  STRUCT(id BIGINT, "name" VARCHAR)  YES  None    None  None
+10             team                  STRUCT(id BIGINT, "name" VARCHAR)  YES  None    None  None
+11         duration                                             DOUBLE  YES  None    None  None
+12          tactics  STRUCT(formation BIGINT, lineup STRUCT(player ...  YES  None    None  None
+13   related_events                                             UUID[]  YES  None    None  None
+14           player                  STRUCT(id BIGINT, "name" VARCHAR)  YES  None    None  None
+15         position                  STRUCT(id BIGINT, "name" VARCHAR)  YES  None    None  None
+16         location                                           DOUBLE[]  YES  None    None  None
+17             pass  STRUCT(recipient STRUCT(id BIGINT, "name" VARC...  YES  None    None  None
+18            carry                      STRUCT(end_location DOUBLE[])  YES  None    None  None
+19     ball_receipt  STRUCT(outcome STRUCT(id BIGINT, "name" VARCHAR))  YES  None    None  None
+20   under_pressure                                            BOOLEAN  YES  None    None  None
+21             duel  STRUCT("type" STRUCT(id BIGINT, "name" VARCHAR...  YES  None    None  None
+22     counterpress                                            BOOLEAN  YES  None    None  None
+23     interception  STRUCT(outcome STRUCT(id BIGINT, "name" VARCHAR))  YES  None    None  None
+24       off_camera                                            BOOLEAN  YES  None    None  None
+25    ball_recovery  STRUCT(recovery_failure BOOLEAN, offensive BOO...  YES  None    None  None
+26             shot  STRUCT(statsbomb_xg DOUBLE, end_location DOUBL...  YES  None    None  None
+27       goalkeeper  STRUCT(end_location DOUBLE[], "type" STRUCT(id...  YES  None    None  None
+28        clearance  STRUCT(left_foot BOOLEAN, body_part STRUCT(id ...  YES  None    None  None
+29            block  STRUCT(deflection BOOLEAN, offensive BOOLEAN, ...  YES  None    None  None
+30          dribble  STRUCT(nutmeg BOOLEAN, outcome STRUCT(id BIGIN...  YES  None    None  None
+31   foul_committed  STRUCT(offensive BOOLEAN, card STRUCT(id BIGIN...  YES  None    None  None
+32         foul_won  STRUCT(defensive BOOLEAN, advantage BOOLEAN, p...  YES  None    None  None
+33              out                                            BOOLEAN  YES  None    None  None
+34       miscontrol                         STRUCT(aerial_won BOOLEAN)  YES  None    None  None
+35    bad_behaviour     STRUCT(card STRUCT(id BIGINT, "name" VARCHAR))  YES  None    None  None
+36     substitution  STRUCT(outcome STRUCT(id BIGINT, "name" VARCHA...  YES  None    None  None
+37            50_50  STRUCT(outcome STRUCT(id BIGINT, "name" VARCHAR))  YES  None    None  None
+38  injury_stoppage                           STRUCT(in_chain BOOLEAN)  YES  None    None  None
+39       half_start                   STRUCT(late_video_start BOOLEAN)  YES  None    None  None
+40       player_off                          STRUCT(permanent BOOLEAN)  YES  None    None  None
+41         half_end                    STRUCT(early_video_end BOOLEAN)  YES  None    None  None
+42         filename                                            VARCHAR  YES  None    None  None
+
+--- lineups ---
+   row_count
+0       7922
+  column_name                                        column_type null   key default extra
+0     team_id                                             BIGINT  YES  None    None  None
+1   team_name                                            VARCHAR  YES  None    None  None
+2      lineup  STRUCT(player_id BIGINT, player_name VARCHAR, ...  YES  None    None  None
+3    filename                                            VARCHAR  YES  None    None  None
+(.venv) schom@Samuels-MacBook-Pro football-project % 
