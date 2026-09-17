@@ -7,24 +7,31 @@ DATABASE_PATH = PROJECT_ROOT / "data" / "processed" / "statsbomb.duckdb"
 con = duckdb.connect(str(DATABASE_PATH))
 
 # put sql queries here between the """ and """ triple quotes
-result = con.sql("""
-SELECT
-    event_uuid,
-    frame_data.teammate,
-    frame_data.actor,
-    frame_data.keeper,
-    frame_data.location[1] AS x,
-    frame_data.location[2] AS y
-FROM read_json_auto(
-    'data/raw/statsbomb/three-sixty/3764440.json'
-) AS data
-CROSS JOIN UNNEST(data.freeze_frame) AS frame(frame_data)
-LIMIT 20;
-""")
+result = con.sql(
+"""
+
+
+
+
+
+
+
+
+SELECT match_id FROM matches;
+
+
+
+
+
+"""
+)
 
 print(result)
 
 
+
+#----------------------------------------------------------
+#----------------------------------------------------------
 #----------------------------------------------------------
 # some example queries: 
 
