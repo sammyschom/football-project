@@ -1,3 +1,8 @@
+# data loading script for statsbomb open data
+# CREATES THE TABLES INSIDE DUCKDB DATABASE!!!
+# a rebuild script, rather than necesarry before every query
+# find out if this will reset the duck db if run ??? 
+
 from pathlib import Path
 
 import duckdb
