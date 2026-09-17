@@ -1,3 +1,9 @@
+# code for ingesting the statsbomb open data
+# DO NOT NEED TO RUN IF DATA ALREADY EXISTS IN THE DATA FOLDER
+
+
+
+
 import json
 from pathlib import Path
 
