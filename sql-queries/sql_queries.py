@@ -9,24 +9,17 @@ con = duckdb.connect(str(DATABASE_PATH))
 # put sql queries here between the """ and """ triple quotes
 result = con.sql(
 """
-
-
-
-
-
-
-
-
-SELECT match_id FROM matches;
-
-
-
-
+SELECT
+        competition.competition_name AS competition,
+        COUNT(*) AS games
+    FROM matches
+    GROUP BY competition.competition_name
+    ORDER BY games DESC
 
 """
 )
 
-print(result)
+result.show(max_rows=1000)
 
 
 
@@ -36,7 +29,8 @@ print(result)
 # some example queries: 
 
 # give title for what this does...
-''' SELECT
+''' 
+SELECT
         competition.competition_name AS competition,
         COUNT(*) AS games
     FROM matches
