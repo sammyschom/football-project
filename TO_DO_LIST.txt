@@ -1,0 +1,17 @@
+HERE IS A SPACE FOR ALL YOUR NOTES AND STUFF TO REMIND YOURSELF OF!
+
+the data engineering MUST contain validation.  
+- missing value 
+- duplicate
+- consistancy?
+
+then you should be using the data to make YOUR OWN advanced metrics 
+
+
+What football question do I WANT TO ANSWER ?
+
+
+
+"A concise summary a technical stakeholder would actually read — not a wall of diagnostics, the conclusion of everything checked above " -- a great idea from the gh repo 21/09
+
+Having the end using some tableau skills would be great 
