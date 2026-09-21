@@ -1,0 +1,4004 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>StatsBomb Data Discovery</title>
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    color: #172033;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #152238;
+    color: white;
+    padding: 40px 6%;
+}
+
+header h1 {
+    margin: 0 0 12px;
+    font-size: 30px;
+}
+
+header p {
+    color: #cbd5e1;
+    margin: 0;
+}
+
+main {
+    max-width: 1400px;
+    margin: auto;
+    padding: 30px 4%;
+}
+
+.report-section {
+    background: white;
+    padding: 28px;
+    margin-bottom: 28px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px #0000000c;
+}
+
+h2 {
+    margin-top: 0;
+    color: #152238;
+}
+
+.purpose {
+    color: #526176;
+}
+
+.metadata {
+    font-size: 13px;
+    color: #64748b;
+    margin: 16px 0;
+}
+
+.table-container {
+    overflow-x: auto;
+    max-height: 650px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.data-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.data-table th {
+    background: #eaf0f7;
+    color: #152238;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.data-table th,
+.data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e8edf3;
+}
+
+.data-table tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+details {
+    margin: 16px 0;
+}
+
+pre {
+    background: #152238;
+    color: #e2e8f0;
+    padding: 16px;
+    overflow-x: auto;
+    border-radius: 8px;
+}
+
+footer {
+    color: #64748b;
+    text-align: center;
+    padding: 30px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>StatsBomb Open Data</h1>
+    <p>Data Discovery & Coverage Report</p>
+    <p>Generated: 21 September 2026, 13:48</p>
+</header>
+
+<main>
+
+    <section class="report-section">
+        <h2>Report overview</h2>
+        <p>
+            This report consolidates the results of
+            exploratory SQL queries against the
+            StatsBomb DuckDB database.
+        </p>
+        <p>
+            Queries included:
+            9
+        </p>
+    </section>
+
+    
+            <section class="report-section">
+
+                <h2>01 — Database tables</h2>
+
+                <p class="purpose">
+                    List the tables currently available in the DuckDB database.
+                </p>
+
+                <div class="metadata">
+                    4 rows ·
+                    2 columns
+                </div>
+
+                <details>
+                    <summary>View SQL query</summary>
+                    <pre><code>
+            SELECT
+                table_schema,
+                table_name
+            FROM information_schema.tables
+            WHERE table_schema NOT IN (
+                'information_schema',
+                'pg_catalog'
+            )
+            ORDER BY
+                table_schema,
+                table_name
+        </code></pre>
+                </details>
+
+                <div class="table-container">
+                    <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>table_schema</th>
+      <th>table_name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>main</td>
+      <td>competitions</td>
+    </tr>
+    <tr>
+      <td>main</td>
+      <td>events</td>
+    </tr>
+    <tr>
+      <td>main</td>
+      <td>lineups</td>
+    </tr>
+    <tr>
+      <td>main</td>
+      <td>matches</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+
+            </section>
+            
+            <section class="report-section">
+
+                <h2>02 — Matches by competition</h2>
+
+                <p class="purpose">
+                    Count the total number of games available for each competition across all seasons.
+                </p>
+
+                <div class="metadata">
+                    24 rows ·
+                    3 columns
+                </div>
+
+                <details>
+                    <summary>View SQL query</summary>
+                    <pre><code>
+        SELECT
+            m.competition.competition_id AS competition_id,
+            m.competition.competition_name AS competition_name,
+            COUNT(DISTINCT m.match_id) AS game_count
+        FROM matches AS m
+        GROUP BY
+            m.competition.competition_id,
+            m.competition.competition_name
+        ORDER BY
+            game_count DESC,
+            competition_name
+    </code></pre>
+                </details>
+
+                <div class="table-container">
+                    <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>competition_id</th>
+      <th>competition_name</th>
+      <th>game_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>11</td>
+      <td>La Liga</td>
+      <td>867</td>
+    </tr>
+    <tr>
+      <td>37</td>
+      <td>FA Women's Super League</td>
+      <td>457</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>Ligue 1</td>
+      <td>435</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Premier League</td>
+      <td>418</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>Serie A</td>
+      <td>381</td>
+    </tr>
+    <tr>
+      <td>182</td>
+      <td>Liga F</td>
+      <td>240</td>
+    </tr>
+    <tr>
+      <td>49</td>
+      <td>NWSL</td>
+      <td>173</td>
+    </tr>
+    <tr>
+      <td>43</td>
+      <td>FIFA World Cup</td>
+      <td>147</td>
+    </tr>
+    <tr>
+      <td>135</td>
+      <td>Frauen Bundesliga</td>
+      <td>132</td>
+    </tr>
+    <tr>
+      <td>131</td>
+      <td>Serie A Women</td>
+      <td>130</td>
+    </tr>
+    <tr>
+      <td>72</td>
+      <td>Women's World Cup</td>
+      <td>116</td>
+    </tr>
+    <tr>
+      <td>1238</td>
+      <td>Indian Super league</td>
+      <td>115</td>
+    </tr>
+    <tr>
+      <td>55</td>
+      <td>UEFA Euro</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>1. Bundesliga</td>
+      <td>68</td>
+    </tr>
+    <tr>
+      <td>53</td>
+      <td>UEFA Women's Euro</td>
+      <td>62</td>
+    </tr>
+    <tr>
+      <td>1267</td>
+      <td>African Cup of Nations</td>
+      <td>52</td>
+    </tr>
+    <tr>
+      <td>223</td>
+      <td>Copa America</td>
+      <td>32</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>Champions League</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>44</td>
+      <td>Major League Soccer</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>87</td>
+      <td>Copa del Rey</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>35</td>
+      <td>UEFA Europa League</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>81</td>
+      <td>Liga Profesional</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>1470</td>
+      <td>FIFA U20 World Cup</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>116</td>
+      <td>North American League</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+
+            </section>
+            
+            <section class="report-section">
+
+                <h2>03 — Database column inventory</h2>
+
+                <p class="purpose">
+                    Explore the columns and data types available across the database.
+                </p>
+
+                <div class="metadata">
+                    79 rows ·
+                    5 columns
+                </div>
+
+                <details>
+                    <summary>View SQL query</summary>
+                    <pre><code>
+            SELECT
+                table_name,
+                ordinal_position,
+                column_name,
+                data_type,
+                is_nullable
+            FROM information_schema.columns
+            WHERE table_schema NOT IN (
+                'information_schema',
+                'pg_catalog'
+            )
+            ORDER BY
+                table_name,
+                ordinal_position
+        </code></pre>
+                </details>
+
+                <div class="table-container">
+                    <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>table_name</th>
+      <th>ordinal_position</th>
+      <th>column_name</th>
+      <th>data_type</th>
+      <th>is_nullable</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>competitions</td>
+      <td>1</td>
+      <td>competition_id</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>2</td>
+      <td>season_id</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>3</td>
+      <td>country_name</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>4</td>
+      <td>competition_name</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>5</td>
+      <td>competition_gender</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>6</td>
+      <td>competition_youth</td>
+      <td>BOOLEAN</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>7</td>
+      <td>competition_international</td>
+      <td>BOOLEAN</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>8</td>
+      <td>season_name</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>9</td>
+      <td>match_updated</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>10</td>
+      <td>match_updated_360</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>11</td>
+      <td>match_available_360</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>12</td>
+      <td>match_available</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>competitions</td>
+      <td>13</td>
+      <td>filename</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>1</td>
+      <td>id</td>
+      <td>UUID</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>2</td>
+      <td>index</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>3</td>
+      <td>period</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>4</td>
+      <td>timestamp</td>
+      <td>TIME</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>5</td>
+      <td>minute</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>6</td>
+      <td>second</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>7</td>
+      <td>type</td>
+      <td>STRUCT(id BIGINT, "name" VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>8</td>
+      <td>possession</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>9</td>
+      <td>possession_team</td>
+      <td>STRUCT(id BIGINT, "name" VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>10</td>
+      <td>play_pattern</td>
+      <td>STRUCT(id BIGINT, "name" VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>11</td>
+      <td>team</td>
+      <td>STRUCT(id BIGINT, "name" VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>12</td>
+      <td>duration</td>
+      <td>DOUBLE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>13</td>
+      <td>tactics</td>
+      <td>STRUCT(formation BIGINT, lineup STRUCT(player STRUCT(id BIGINT, "name" VARCHAR), "position" STRUCT(id BIGINT, "name" VARCHAR), jersey_number BIGINT)[])</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>14</td>
+      <td>related_events</td>
+      <td>UUID[]</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>15</td>
+      <td>player</td>
+      <td>STRUCT(id BIGINT, "name" VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>16</td>
+      <td>position</td>
+      <td>STRUCT(id BIGINT, "name" VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>17</td>
+      <td>location</td>
+      <td>DOUBLE[]</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>18</td>
+      <td>pass</td>
+      <td>STRUCT(recipient STRUCT(id BIGINT, "name" VARCHAR), length DOUBLE, angle DOUBLE, height STRUCT(id BIGINT, "name" VARCHAR), end_location DOUBLE[], body_part STRUCT(id BIGINT, "name" VARCHAR), "type" STRUCT(id BIGINT, "name" VARCHAR), switch BOOLEAN, outcome STRUCT(id BIGINT, "name" VARCHAR), aerial_won BOOLEAN, assisted_shot_id UUID, shot_assist BOOLEAN, "cross" BOOLEAN, through_ball BOOLEAN, technique STRUCT(id BIGINT, "name" VARCHAR), inswinging BOOLEAN, miscommunication BOOLEAN, cut_back BOOLEAN, deflected BOOLEAN, no_touch BOOLEAN, straight BOOLEAN, goal_assist BOOLEAN, outswinging BOOLEAN, backheel BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>19</td>
+      <td>carry</td>
+      <td>STRUCT(end_location DOUBLE[])</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>20</td>
+      <td>ball_receipt</td>
+      <td>STRUCT(outcome STRUCT(id BIGINT, "name" VARCHAR))</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>21</td>
+      <td>under_pressure</td>
+      <td>BOOLEAN</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>22</td>
+      <td>duel</td>
+      <td>STRUCT("type" STRUCT(id BIGINT, "name" VARCHAR), outcome STRUCT(id BIGINT, "name" VARCHAR))</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>23</td>
+      <td>counterpress</td>
+      <td>BOOLEAN</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>24</td>
+      <td>interception</td>
+      <td>STRUCT(outcome STRUCT(id BIGINT, "name" VARCHAR))</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>25</td>
+      <td>off_camera</td>
+      <td>BOOLEAN</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>26</td>
+      <td>ball_recovery</td>
+      <td>STRUCT(recovery_failure BOOLEAN, offensive BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>27</td>
+      <td>shot</td>
+      <td>STRUCT(statsbomb_xg DOUBLE, end_location DOUBLE[], key_pass_id UUID, outcome STRUCT(id BIGINT, "name" VARCHAR), first_time BOOLEAN, technique STRUCT(id BIGINT, "name" VARCHAR), body_part STRUCT(id BIGINT, "name" VARCHAR), "type" STRUCT(id BIGINT, "name" VARCHAR), freeze_frame STRUCT("location" DOUBLE[], player STRUCT(id BIGINT, "name" VARCHAR), "position" STRUCT(id BIGINT, "name" VARCHAR), teammate BOOLEAN)[], aerial_won BOOLEAN, one_on_one BOOLEAN, saved_to_post BOOLEAN, deflected BOOLEAN, saved_off_target BOOLEAN, open_goal BOOLEAN, follows_dribble BOOLEAN, redirect BOOLEAN, kick_off BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>28</td>
+      <td>goalkeeper</td>
+      <td>STRUCT(end_location DOUBLE[], "type" STRUCT(id BIGINT, "name" VARCHAR), "position" STRUCT(id BIGINT, "name" VARCHAR), outcome STRUCT(id BIGINT, "name" VARCHAR), technique STRUCT(id BIGINT, "name" VARCHAR), body_part STRUCT(id BIGINT, "name" VARCHAR), shot_saved_to_post BOOLEAN, shot_saved_off_target BOOLEAN, punched_out BOOLEAN, lost_out BOOLEAN, lost_in_play BOOLEAN, success_out BOOLEAN, success_in_play BOOLEAN, saved_to_post BOOLEAN, penalty_saved_to_post BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>29</td>
+      <td>clearance</td>
+      <td>STRUCT(left_foot BOOLEAN, body_part STRUCT(id BIGINT, "name" VARCHAR), right_foot BOOLEAN, head BOOLEAN, aerial_won BOOLEAN, other BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>30</td>
+      <td>block</td>
+      <td>STRUCT(deflection BOOLEAN, offensive BOOLEAN, save_block BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>31</td>
+      <td>dribble</td>
+      <td>STRUCT(nutmeg BOOLEAN, outcome STRUCT(id BIGINT, "name" VARCHAR), overrun BOOLEAN, no_touch BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>32</td>
+      <td>foul_committed</td>
+      <td>STRUCT(offensive BOOLEAN, card STRUCT(id BIGINT, "name" VARCHAR), advantage BOOLEAN, "type" STRUCT(id BIGINT, "name" VARCHAR), penalty BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>33</td>
+      <td>foul_won</td>
+      <td>STRUCT(defensive BOOLEAN, advantage BOOLEAN, penalty BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>34</td>
+      <td>out</td>
+      <td>BOOLEAN</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>35</td>
+      <td>miscontrol</td>
+      <td>STRUCT(aerial_won BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>36</td>
+      <td>bad_behaviour</td>
+      <td>STRUCT(card STRUCT(id BIGINT, "name" VARCHAR))</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>37</td>
+      <td>substitution</td>
+      <td>STRUCT(outcome STRUCT(id BIGINT, "name" VARCHAR), replacement STRUCT(id BIGINT, "name" VARCHAR))</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>38</td>
+      <td>50_50</td>
+      <td>STRUCT(outcome STRUCT(id BIGINT, "name" VARCHAR))</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>39</td>
+      <td>injury_stoppage</td>
+      <td>STRUCT(in_chain BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>40</td>
+      <td>half_start</td>
+      <td>STRUCT(late_video_start BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>41</td>
+      <td>player_off</td>
+      <td>STRUCT(permanent BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>42</td>
+      <td>half_end</td>
+      <td>STRUCT(early_video_end BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>43</td>
+      <td>filename</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>lineups</td>
+      <td>1</td>
+      <td>team_id</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>lineups</td>
+      <td>2</td>
+      <td>team_name</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>lineups</td>
+      <td>3</td>
+      <td>lineup</td>
+      <td>STRUCT(player_id BIGINT, player_name VARCHAR, player_nickname VARCHAR, jersey_number BIGINT, country STRUCT(id BIGINT, "name" VARCHAR), cards STRUCT("time" VARCHAR, card_type VARCHAR, reason VARCHAR, period BIGINT)[], positions STRUCT(position_id BIGINT, "position" VARCHAR, "from" VARCHAR, "to" VARCHAR, from_period BIGINT, to_period BIGINT, start_reason VARCHAR, end_reason VARCHAR)[])[]</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>lineups</td>
+      <td>4</td>
+      <td>filename</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>1</td>
+      <td>match_id</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>2</td>
+      <td>match_date</td>
+      <td>DATE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>3</td>
+      <td>kick_off</td>
+      <td>TIME</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>4</td>
+      <td>competition</td>
+      <td>STRUCT(competition_id BIGINT, country_name VARCHAR, competition_name VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>5</td>
+      <td>season</td>
+      <td>STRUCT(season_id BIGINT, season_name VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>6</td>
+      <td>home_team</td>
+      <td>STRUCT(home_team_id BIGINT, home_team_name VARCHAR, home_team_gender VARCHAR, home_team_group VARCHAR, country STRUCT(id BIGINT, "name" VARCHAR), managers STRUCT(id BIGINT, "name" VARCHAR, nickname VARCHAR, dob DATE, country STRUCT(id BIGINT, "name" VARCHAR))[])</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>7</td>
+      <td>away_team</td>
+      <td>STRUCT(away_team_id BIGINT, away_team_name VARCHAR, away_team_gender VARCHAR, away_team_group VARCHAR, country STRUCT(id BIGINT, "name" VARCHAR), managers STRUCT(id BIGINT, "name" VARCHAR, nickname VARCHAR, dob DATE, country STRUCT(id BIGINT, "name" VARCHAR))[])</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>8</td>
+      <td>home_score</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>9</td>
+      <td>away_score</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>10</td>
+      <td>match_status</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>11</td>
+      <td>match_status_360</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>12</td>
+      <td>last_updated</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>13</td>
+      <td>last_updated_360</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>14</td>
+      <td>metadata</td>
+      <td>STRUCT(data_version VARCHAR, shot_fidelity_version VARCHAR, xy_fidelity_version VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>15</td>
+      <td>match_week</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>16</td>
+      <td>competition_stage</td>
+      <td>STRUCT(id BIGINT, "name" VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>17</td>
+      <td>stadium</td>
+      <td>STRUCT(id BIGINT, "name" VARCHAR, country STRUCT(id BIGINT, "name" VARCHAR))</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>18</td>
+      <td>referee</td>
+      <td>STRUCT(id BIGINT, "name" VARCHAR, country STRUCT(id BIGINT, "name" VARCHAR))</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>matches</td>
+      <td>19</td>
+      <td>filename</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+
+            </section>
+            
+            <section class="report-section">
+
+                <h2>04 — Counts by competition AND season</h2>
+
+                <p class="purpose">
+                    Count the number of games by competition and season.available across the database.
+                </p>
+
+                <div class="metadata">
+                    80 rows ·
+                    5 columns
+                </div>
+
+                <details>
+                    <summary>View SQL query</summary>
+                    <pre><code>
+                SELECT
+    competition.competition_name AS competition,
+    season.season_name AS season,
+    COUNT(DISTINCT match_id) AS matches,
+    MIN(match_date) AS first_match,
+    MAX(match_date) AS last_match
+FROM matches
+GROUP BY
+    competition.competition_name,
+    season.season_name
+ORDER BY
+    matches DESC,
+    competition,
+    season;
+            </code></pre>
+                </details>
+
+                <div class="table-container">
+                    <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>competition</th>
+      <th>season</th>
+      <th>matches</th>
+      <th>first_match</th>
+      <th>last_match</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>La Liga</td>
+      <td>2015/2016</td>
+      <td>380</td>
+      <td>2015-08-21</td>
+      <td>2016-05-15</td>
+    </tr>
+    <tr>
+      <td>Premier League</td>
+      <td>2015/2016</td>
+      <td>380</td>
+      <td>2015-08-08</td>
+      <td>2016-05-17</td>
+    </tr>
+    <tr>
+      <td>Serie A</td>
+      <td>2015/2016</td>
+      <td>380</td>
+      <td>2015-08-22</td>
+      <td>2016-05-15</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2015/2016</td>
+      <td>377</td>
+      <td>2015-08-07</td>
+      <td>2016-05-14</td>
+    </tr>
+    <tr>
+      <td>Liga F</td>
+      <td>2023/2024</td>
+      <td>240</td>
+      <td>2023-09-15</td>
+      <td>2024-06-16</td>
+    </tr>
+    <tr>
+      <td>NWSL</td>
+      <td>2023</td>
+      <td>137</td>
+      <td>2023-03-25</td>
+      <td>2023-11-12</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2023/2024</td>
+      <td>132</td>
+      <td>2023-10-01</td>
+      <td>2024-05-18</td>
+    </tr>
+    <tr>
+      <td>Frauen Bundesliga</td>
+      <td>2023/2024</td>
+      <td>132</td>
+      <td>2023-09-15</td>
+      <td>2024-05-20</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2020/2021</td>
+      <td>131</td>
+      <td>2020-09-05</td>
+      <td>2021-05-09</td>
+    </tr>
+    <tr>
+      <td>Serie A Women</td>
+      <td>2023/2024</td>
+      <td>130</td>
+      <td>2023-09-16</td>
+      <td>2024-05-19</td>
+    </tr>
+    <tr>
+      <td>Indian Super league</td>
+      <td>2021/2022</td>
+      <td>115</td>
+      <td>2021-11-19</td>
+      <td>2022-03-20</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2018/2019</td>
+      <td>107</td>
+      <td>2018-09-09</td>
+      <td>2019-05-11</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2019/2020</td>
+      <td>87</td>
+      <td>2019-09-07</td>
+      <td>2020-02-23</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>2018</td>
+      <td>64</td>
+      <td>2018-06-14</td>
+      <td>2018-07-15</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>2022</td>
+      <td>64</td>
+      <td>2022-11-20</td>
+      <td>2022-12-18</td>
+    </tr>
+    <tr>
+      <td>Women's World Cup</td>
+      <td>2023</td>
+      <td>64</td>
+      <td>2023-07-20</td>
+      <td>2023-08-20</td>
+    </tr>
+    <tr>
+      <td>African Cup of Nations</td>
+      <td>2023</td>
+      <td>52</td>
+      <td>2024-01-13</td>
+      <td>2024-02-11</td>
+    </tr>
+    <tr>
+      <td>Women's World Cup</td>
+      <td>2019</td>
+      <td>52</td>
+      <td>2019-06-07</td>
+      <td>2019-07-07</td>
+    </tr>
+    <tr>
+      <td>UEFA Euro</td>
+      <td>2020</td>
+      <td>51</td>
+      <td>2021-06-11</td>
+      <td>2021-07-11</td>
+    </tr>
+    <tr>
+      <td>UEFA Euro</td>
+      <td>2024</td>
+      <td>51</td>
+      <td>2024-06-14</td>
+      <td>2024-07-14</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2014/2015</td>
+      <td>38</td>
+      <td>2014-08-24</td>
+      <td>2015-05-23</td>
+    </tr>
+    <tr>
+      <td>Premier League</td>
+      <td>2003/2004</td>
+      <td>38</td>
+      <td>2003-08-16</td>
+      <td>2004-05-15</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2011/2012</td>
+      <td>37</td>
+      <td>2011-08-29</td>
+      <td>2012-05-12</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2017/2018</td>
+      <td>36</td>
+      <td>2017-08-20</td>
+      <td>2018-05-20</td>
+    </tr>
+    <tr>
+      <td>NWSL</td>
+      <td>2018</td>
+      <td>36</td>
+      <td>2018-04-15</td>
+      <td>2018-08-12</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2009/2010</td>
+      <td>35</td>
+      <td>2009-09-12</td>
+      <td>2010-05-16</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2020/2021</td>
+      <td>35</td>
+      <td>2020-09-27</td>
+      <td>2021-05-16</td>
+    </tr>
+    <tr>
+      <td>1. Bundesliga</td>
+      <td>2015/2016</td>
+      <td>34</td>
+      <td>2015-08-15</td>
+      <td>2016-05-14</td>
+    </tr>
+    <tr>
+      <td>1. Bundesliga</td>
+      <td>2023/2024</td>
+      <td>34</td>
+      <td>2023-08-19</td>
+      <td>2024-05-18</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2016/2017</td>
+      <td>34</td>
+      <td>2016-08-20</td>
+      <td>2017-05-21</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2018/2019</td>
+      <td>34</td>
+      <td>2018-08-18</td>
+      <td>2019-05-19</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2010/2011</td>
+      <td>33</td>
+      <td>2010-08-29</td>
+      <td>2011-05-11</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2019/2020</td>
+      <td>33</td>
+      <td>2019-09-21</td>
+      <td>2020-07-19</td>
+    </tr>
+    <tr>
+      <td>Copa America</td>
+      <td>2024</td>
+      <td>32</td>
+      <td>2024-06-21</td>
+      <td>2024-07-15</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2012/2013</td>
+      <td>32</td>
+      <td>2012-08-19</td>
+      <td>2013-05-12</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2022/2023</td>
+      <td>32</td>
+      <td>2022-08-06</td>
+      <td>2023-06-03</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2008/2009</td>
+      <td>31</td>
+      <td>2008-08-31</td>
+      <td>2009-05-10</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2013/2014</td>
+      <td>31</td>
+      <td>2013-08-18</td>
+      <td>2014-05-17</td>
+    </tr>
+    <tr>
+      <td>UEFA Women's Euro</td>
+      <td>2022</td>
+      <td>31</td>
+      <td>2022-07-06</td>
+      <td>2022-07-31</td>
+    </tr>
+    <tr>
+      <td>UEFA Women's Euro</td>
+      <td>2025</td>
+      <td>31</td>
+      <td>2025-07-02</td>
+      <td>2025-07-27</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2007/2008</td>
+      <td>27</td>
+      <td>2007-08-26</td>
+      <td>2008-05-17</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2006/2007</td>
+      <td>26</td>
+      <td>2006-08-28</td>
+      <td>2007-06-17</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2021/2022</td>
+      <td>26</td>
+      <td>2021-08-29</td>
+      <td>2022-05-21</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2005/2006</td>
+      <td>17</td>
+      <td>2005-10-01</td>
+      <td>2006-02-25</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2004/2005</td>
+      <td>7</td>
+      <td>2004-10-16</td>
+      <td>2005-05-01</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1970</td>
+      <td>6</td>
+      <td>1970-06-03</td>
+      <td>1970-06-21</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1974</td>
+      <td>6</td>
+      <td>1974-06-19</td>
+      <td>1974-07-07</td>
+    </tr>
+    <tr>
+      <td>Major League Soccer</td>
+      <td>2023</td>
+      <td>6</td>
+      <td>2023-08-27</td>
+      <td>2023-10-22</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1986</td>
+      <td>3</td>
+      <td>1986-06-22</td>
+      <td>1986-06-29</td>
+    </tr>
+    <tr>
+      <td>UEFA Europa League</td>
+      <td>1988/1989</td>
+      <td>3</td>
+      <td>1989-03-15</td>
+      <td>1989-05-03</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1958</td>
+      <td>2</td>
+      <td>1958-06-24</td>
+      <td>1958-06-29</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1970/1971</td>
+      <td>1</td>
+      <td>1971-06-02</td>
+      <td>1971-06-02</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1971/1972</td>
+      <td>1</td>
+      <td>1972-05-31</td>
+      <td>1972-05-31</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1972/1973</td>
+      <td>1</td>
+      <td>1973-05-30</td>
+      <td>1973-05-30</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1999/2000</td>
+      <td>1</td>
+      <td>1999-11-23</td>
+      <td>1999-11-23</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2003/2004</td>
+      <td>1</td>
+      <td>2004-05-26</td>
+      <td>2004-05-26</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2004/2005</td>
+      <td>1</td>
+      <td>2005-05-25</td>
+      <td>2005-05-25</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2006/2007</td>
+      <td>1</td>
+      <td>2007-05-23</td>
+      <td>2007-05-23</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2008/2009</td>
+      <td>1</td>
+      <td>2009-05-27</td>
+      <td>2009-05-27</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2009/2010</td>
+      <td>1</td>
+      <td>2010-05-22</td>
+      <td>2010-05-22</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2010/2011</td>
+      <td>1</td>
+      <td>2011-05-28</td>
+      <td>2011-05-28</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2011/2012</td>
+      <td>1</td>
+      <td>2012-05-19</td>
+      <td>2012-05-19</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2012/2013</td>
+      <td>1</td>
+      <td>2013-05-25</td>
+      <td>2013-05-25</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2013/2014</td>
+      <td>1</td>
+      <td>2014-05-24</td>
+      <td>2014-05-24</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2014/2015</td>
+      <td>1</td>
+      <td>2015-06-06</td>
+      <td>2015-06-06</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2015/2016</td>
+      <td>1</td>
+      <td>2016-05-28</td>
+      <td>2016-05-28</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2016/2017</td>
+      <td>1</td>
+      <td>2017-06-03</td>
+      <td>2017-06-03</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2017/2018</td>
+      <td>1</td>
+      <td>2018-05-26</td>
+      <td>2018-05-26</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2018/2019</td>
+      <td>1</td>
+      <td>2019-06-01</td>
+      <td>2019-06-01</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1977/1978</td>
+      <td>1</td>
+      <td>1978-04-19</td>
+      <td>1978-04-19</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1982/1983</td>
+      <td>1</td>
+      <td>1983-06-04</td>
+      <td>1983-06-04</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1983/1984</td>
+      <td>1</td>
+      <td>1984-05-05</td>
+      <td>1984-05-05</td>
+    </tr>
+    <tr>
+      <td>FIFA U20 World Cup</td>
+      <td>1979</td>
+      <td>1</td>
+      <td>1979-09-07</td>
+      <td>1979-09-07</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1962</td>
+      <td>1</td>
+      <td>1962-05-30</td>
+      <td>1962-05-30</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1990</td>
+      <td>1</td>
+      <td>1990-06-24</td>
+      <td>1990-06-24</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>1973/1974</td>
+      <td>1</td>
+      <td>1974-02-17</td>
+      <td>1974-02-17</td>
+    </tr>
+    <tr>
+      <td>Liga Profesional</td>
+      <td>1981</td>
+      <td>1</td>
+      <td>1981-04-10</td>
+      <td>1981-04-10</td>
+    </tr>
+    <tr>
+      <td>Liga Profesional</td>
+      <td>1997/1998</td>
+      <td>1</td>
+      <td>1997-10-25</td>
+      <td>1997-10-25</td>
+    </tr>
+    <tr>
+      <td>North American League</td>
+      <td>1977</td>
+      <td>1</td>
+      <td>1977-08-28</td>
+      <td>1977-08-28</td>
+    </tr>
+    <tr>
+      <td>Serie A</td>
+      <td>1986/1987</td>
+      <td>1</td>
+      <td>1986-11-09</td>
+      <td>1986-11-09</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+
+            </section>
+            
+            <section class="report-section">
+
+                <h2>05 — Matching events to matches</h2>
+
+                <p class="purpose">
+                    Match event files to their corresponding games and count events per competition and season.
+                </p>
+
+                <div class="metadata">
+                    80 rows ·
+                    6 columns
+                </div>
+
+                <details>
+                    <summary>View SQL query</summary>
+                    <pre><code>
+    WITH event_counts AS (
+        SELECT
+            TRY_CAST(
+                regexp_extract(
+                    filename,
+                    '([0-9]+)[.]json$',
+                    1
+                ) AS BIGINT
+            ) AS match_id,
+            COUNT(*) AS events
+        FROM events
+        GROUP BY match_id
+    )
+
+    SELECT
+        m.competition.competition_name AS competition,
+        m.season.season_name AS season,
+        COUNT(*) AS matches,
+        COUNT(ec.match_id) AS matches_with_events,
+        COALESCE(SUM(ec.events), 0) AS events,
+        COALESCE(
+            ROUND(
+                SUM(ec.events) * 1.0
+                / NULLIF(COUNT(ec.match_id), 0),
+                0
+            ),
+            0
+        ) AS events_per_match
+    FROM matches AS m
+    LEFT JOIN event_counts AS ec
+        ON m.match_id = ec.match_id
+    GROUP BY
+        m.competition.competition_name,
+        m.season.season_name
+    ORDER BY
+        events DESC,
+        competition,
+        season
+</code></pre>
+                </details>
+
+                <div class="table-container">
+                    <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>competition</th>
+      <th>season</th>
+      <th>matches</th>
+      <th>matches_with_events</th>
+      <th>events</th>
+      <th>events_per_match</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2015/2016</td>
+      <td>377</td>
+      <td>377</td>
+      <td>1358593.0</td>
+      <td>3604.0</td>
+    </tr>
+    <tr>
+      <td>Serie A</td>
+      <td>2015/2016</td>
+      <td>380</td>
+      <td>380</td>
+      <td>1353739.0</td>
+      <td>3562.0</td>
+    </tr>
+    <tr>
+      <td>Premier League</td>
+      <td>2015/2016</td>
+      <td>380</td>
+      <td>380</td>
+      <td>1313773.0</td>
+      <td>3457.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2015/2016</td>
+      <td>380</td>
+      <td>380</td>
+      <td>1295354.0</td>
+      <td>3409.0</td>
+    </tr>
+    <tr>
+      <td>Liga F</td>
+      <td>2023/2024</td>
+      <td>240</td>
+      <td>240</td>
+      <td>835429.0</td>
+      <td>3481.0</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2023/2024</td>
+      <td>132</td>
+      <td>132</td>
+      <td>495189.0</td>
+      <td>3751.0</td>
+    </tr>
+    <tr>
+      <td>NWSL</td>
+      <td>2023</td>
+      <td>137</td>
+      <td>137</td>
+      <td>462436.0</td>
+      <td>3375.0</td>
+    </tr>
+    <tr>
+      <td>Frauen Bundesliga</td>
+      <td>2023/2024</td>
+      <td>132</td>
+      <td>132</td>
+      <td>459696.0</td>
+      <td>3483.0</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2020/2021</td>
+      <td>131</td>
+      <td>131</td>
+      <td>443295.0</td>
+      <td>3384.0</td>
+    </tr>
+    <tr>
+      <td>Serie A Women</td>
+      <td>2023/2024</td>
+      <td>130</td>
+      <td>130</td>
+      <td>432487.0</td>
+      <td>3327.0</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2018/2019</td>
+      <td>107</td>
+      <td>107</td>
+      <td>356568.0</td>
+      <td>3332.0</td>
+    </tr>
+    <tr>
+      <td>Indian Super league</td>
+      <td>2021/2022</td>
+      <td>115</td>
+      <td>115</td>
+      <td>344667.0</td>
+      <td>2997.0</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2019/2020</td>
+      <td>87</td>
+      <td>87</td>
+      <td>292253.0</td>
+      <td>3359.0</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>2022</td>
+      <td>64</td>
+      <td>64</td>
+      <td>234637.0</td>
+      <td>3666.0</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>2018</td>
+      <td>64</td>
+      <td>64</td>
+      <td>227825.0</td>
+      <td>3560.0</td>
+    </tr>
+    <tr>
+      <td>Women's World Cup</td>
+      <td>2023</td>
+      <td>64</td>
+      <td>64</td>
+      <td>226118.0</td>
+      <td>3533.0</td>
+    </tr>
+    <tr>
+      <td>UEFA Euro</td>
+      <td>2020</td>
+      <td>51</td>
+      <td>51</td>
+      <td>192664.0</td>
+      <td>3778.0</td>
+    </tr>
+    <tr>
+      <td>UEFA Euro</td>
+      <td>2024</td>
+      <td>51</td>
+      <td>51</td>
+      <td>187924.0</td>
+      <td>3685.0</td>
+    </tr>
+    <tr>
+      <td>Women's World Cup</td>
+      <td>2019</td>
+      <td>52</td>
+      <td>52</td>
+      <td>176442.0</td>
+      <td>3393.0</td>
+    </tr>
+    <tr>
+      <td>African Cup of Nations</td>
+      <td>2023</td>
+      <td>52</td>
+      <td>52</td>
+      <td>162903.0</td>
+      <td>3133.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2011/2012</td>
+      <td>37</td>
+      <td>37</td>
+      <td>145993.0</td>
+      <td>3946.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2014/2015</td>
+      <td>38</td>
+      <td>38</td>
+      <td>142957.0</td>
+      <td>3762.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2020/2021</td>
+      <td>35</td>
+      <td>35</td>
+      <td>139030.0</td>
+      <td>3972.0</td>
+    </tr>
+    <tr>
+      <td>1. Bundesliga</td>
+      <td>2023/2024</td>
+      <td>34</td>
+      <td>34</td>
+      <td>137765.0</td>
+      <td>4052.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2017/2018</td>
+      <td>36</td>
+      <td>36</td>
+      <td>136538.0</td>
+      <td>3793.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2018/2019</td>
+      <td>34</td>
+      <td>34</td>
+      <td>131702.0</td>
+      <td>3874.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2010/2011</td>
+      <td>33</td>
+      <td>33</td>
+      <td>130899.0</td>
+      <td>3967.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2012/2013</td>
+      <td>32</td>
+      <td>32</td>
+      <td>130457.0</td>
+      <td>4077.0</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2022/2023</td>
+      <td>32</td>
+      <td>32</td>
+      <td>129490.0</td>
+      <td>4047.0</td>
+    </tr>
+    <tr>
+      <td>Premier League</td>
+      <td>2003/2004</td>
+      <td>38</td>
+      <td>38</td>
+      <td>129401.0</td>
+      <td>3405.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2019/2020</td>
+      <td>33</td>
+      <td>33</td>
+      <td>129058.0</td>
+      <td>3911.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2009/2010</td>
+      <td>35</td>
+      <td>35</td>
+      <td>128395.0</td>
+      <td>3668.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2016/2017</td>
+      <td>34</td>
+      <td>34</td>
+      <td>124813.0</td>
+      <td>3671.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2013/2014</td>
+      <td>31</td>
+      <td>31</td>
+      <td>118016.0</td>
+      <td>3807.0</td>
+    </tr>
+    <tr>
+      <td>1. Bundesliga</td>
+      <td>2015/2016</td>
+      <td>34</td>
+      <td>34</td>
+      <td>115240.0</td>
+      <td>3389.0</td>
+    </tr>
+    <tr>
+      <td>NWSL</td>
+      <td>2018</td>
+      <td>36</td>
+      <td>36</td>
+      <td>114163.0</td>
+      <td>3171.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2008/2009</td>
+      <td>31</td>
+      <td>31</td>
+      <td>107089.0</td>
+      <td>3454.0</td>
+    </tr>
+    <tr>
+      <td>UEFA Women's Euro</td>
+      <td>2025</td>
+      <td>31</td>
+      <td>31</td>
+      <td>105658.0</td>
+      <td>3408.0</td>
+    </tr>
+    <tr>
+      <td>UEFA Women's Euro</td>
+      <td>2022</td>
+      <td>31</td>
+      <td>31</td>
+      <td>105141.0</td>
+      <td>3392.0</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2021/2022</td>
+      <td>26</td>
+      <td>26</td>
+      <td>101766.0</td>
+      <td>3914.0</td>
+    </tr>
+    <tr>
+      <td>Copa America</td>
+      <td>2024</td>
+      <td>32</td>
+      <td>32</td>
+      <td>100324.0</td>
+      <td>3135.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2007/2008</td>
+      <td>27</td>
+      <td>27</td>
+      <td>96913.0</td>
+      <td>3589.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2006/2007</td>
+      <td>26</td>
+      <td>26</td>
+      <td>92656.0</td>
+      <td>3564.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2005/2006</td>
+      <td>17</td>
+      <td>17</td>
+      <td>57668.0</td>
+      <td>3392.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2004/2005</td>
+      <td>7</td>
+      <td>7</td>
+      <td>22204.0</td>
+      <td>3172.0</td>
+    </tr>
+    <tr>
+      <td>Major League Soccer</td>
+      <td>2023</td>
+      <td>6</td>
+      <td>6</td>
+      <td>21786.0</td>
+      <td>3631.0</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1970</td>
+      <td>6</td>
+      <td>6</td>
+      <td>20030.0</td>
+      <td>3338.0</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1974</td>
+      <td>6</td>
+      <td>6</td>
+      <td>19259.0</td>
+      <td>3210.0</td>
+    </tr>
+    <tr>
+      <td>UEFA Europa League</td>
+      <td>1988/1989</td>
+      <td>3</td>
+      <td>3</td>
+      <td>10086.0</td>
+      <td>3362.0</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1986</td>
+      <td>3</td>
+      <td>3</td>
+      <td>8471.0</td>
+      <td>2824.0</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1958</td>
+      <td>2</td>
+      <td>2</td>
+      <td>7341.0</td>
+      <td>3671.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2015/2016</td>
+      <td>1</td>
+      <td>1</td>
+      <td>4708.0</td>
+      <td>4708.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2011/2012</td>
+      <td>1</td>
+      <td>1</td>
+      <td>4695.0</td>
+      <td>4695.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2004/2005</td>
+      <td>1</td>
+      <td>1</td>
+      <td>4648.0</td>
+      <td>4648.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2010/2011</td>
+      <td>1</td>
+      <td>1</td>
+      <td>4326.0</td>
+      <td>4326.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2013/2014</td>
+      <td>1</td>
+      <td>1</td>
+      <td>4263.0</td>
+      <td>4263.0</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1962</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3754.0</td>
+      <td>3754.0</td>
+    </tr>
+    <tr>
+      <td>Liga Profesional</td>
+      <td>1997/1998</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3572.0</td>
+      <td>3572.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1970/1971</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3529.0</td>
+      <td>3529.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2017/2018</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3497.0</td>
+      <td>3497.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2014/2015</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3433.0</td>
+      <td>3433.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2009/2010</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3410.0</td>
+      <td>3410.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2016/2017</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3400.0</td>
+      <td>3400.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1999/2000</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3384.0</td>
+      <td>3384.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2012/2013</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3338.0</td>
+      <td>3338.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2008/2009</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3329.0</td>
+      <td>3329.0</td>
+    </tr>
+    <tr>
+      <td>FIFA U20 World Cup</td>
+      <td>1979</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3245.0</td>
+      <td>3245.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2003/2004</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3223.0</td>
+      <td>3223.0</td>
+    </tr>
+    <tr>
+      <td>North American League</td>
+      <td>1977</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3205.0</td>
+      <td>3205.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1972/1973</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3195.0</td>
+      <td>3195.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2018/2019</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3165.0</td>
+      <td>3165.0</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1990</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3140.0</td>
+      <td>3140.0</td>
+    </tr>
+    <tr>
+      <td>Liga Profesional</td>
+      <td>1981</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3086.0</td>
+      <td>3086.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2006/2007</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3064.0</td>
+      <td>3064.0</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1971/1972</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3027.0</td>
+      <td>3027.0</td>
+    </tr>
+    <tr>
+      <td>Serie A</td>
+      <td>1986/1987</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3005.0</td>
+      <td>3005.0</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>1973/1974</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2974.0</td>
+      <td>2974.0</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1977/1978</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2917.0</td>
+      <td>2917.0</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1983/1984</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2596.0</td>
+      <td>2596.0</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1982/1983</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2557.0</td>
+      <td>2557.0</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+
+            </section>
+            
+            <section class="report-section">
+
+                <h2>06 — What event types?</h2>
+
+                <p class="purpose">
+                    List the event types available in the events table.
+                </p>
+
+                <div class="metadata">
+                    35 rows ·
+                    3 columns
+                </div>
+
+                <details>
+                    <summary>View SQL query</summary>
+                    <pre><code>
+            SELECT
+    type.name AS event_type,
+    COUNT(*) AS event_count,
+    COUNT(DISTINCT filename) AS match_files
+FROM events
+GROUP BY type.name
+ORDER BY event_count DESC;
+        </code></pre>
+                </details>
+
+                <div class="table-container">
+                    <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>event_type</th>
+      <th>event_count</th>
+      <th>match_files</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Pass</td>
+      <td>3836550</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Ball Receipt*</td>
+      <td>3589099</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Carry</td>
+      <td>3007953</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Pressure</td>
+      <td>1301279</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Ball Recovery</td>
+      <td>433698</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Duel</td>
+      <td>287707</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Clearance</td>
+      <td>183434</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Block</td>
+      <td>157782</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Dribble</td>
+      <td>138745</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Goal Keeper</td>
+      <td>123920</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Miscontrol</td>
+      <td>118271</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Foul Committed</td>
+      <td>108845</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Dispossessed</td>
+      <td>103657</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Foul Won</td>
+      <td>103354</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Shot</td>
+      <td>101227</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Interception</td>
+      <td>90879</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Dribbled Past</td>
+      <td>85864</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Substitution</td>
+      <td>26481</td>
+      <td>3958</td>
+    </tr>
+    <tr>
+      <td>Injury Stoppage</td>
+      <td>17200</td>
+      <td>3570</td>
+    </tr>
+    <tr>
+      <td>Half Start</td>
+      <td>16120</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Half End</td>
+      <td>16120</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>50/50</td>
+      <td>14549</td>
+      <td>2670</td>
+    </tr>
+    <tr>
+      <td>Tactical Shift</td>
+      <td>10865</td>
+      <td>3579</td>
+    </tr>
+    <tr>
+      <td>Starting XI</td>
+      <td>7922</td>
+      <td>3961</td>
+    </tr>
+    <tr>
+      <td>Referee Ball-Drop</td>
+      <td>5977</td>
+      <td>1963</td>
+    </tr>
+    <tr>
+      <td>Shield</td>
+      <td>5578</td>
+      <td>2894</td>
+    </tr>
+    <tr>
+      <td>Player Off</td>
+      <td>4271</td>
+      <td>2326</td>
+    </tr>
+    <tr>
+      <td>Player On</td>
+      <td>4230</td>
+      <td>2318</td>
+    </tr>
+    <tr>
+      <td>Bad Behaviour</td>
+      <td>2816</td>
+      <td>1684</td>
+    </tr>
+    <tr>
+      <td>Camera On</td>
+      <td>2571</td>
+      <td>106</td>
+    </tr>
+    <tr>
+      <td>Error</td>
+      <td>2158</td>
+      <td>1536</td>
+    </tr>
+    <tr>
+      <td>Offside</td>
+      <td>1400</td>
+      <td>1166</td>
+    </tr>
+    <tr>
+      <td>Camera off</td>
+      <td>690</td>
+      <td>106</td>
+    </tr>
+    <tr>
+      <td>Own Goal Against</td>
+      <td>387</td>
+      <td>375</td>
+    </tr>
+    <tr>
+      <td>Own Goal For</td>
+      <td>387</td>
+      <td>375</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+
+            </section>
+            
+            <section class="report-section">
+
+                <h2>07 — Exploring shot and xG data</h2>
+
+                <p class="purpose">
+                    Explore shot events and their associated xG values by competition and season.
+                </p>
+
+                <div class="metadata">
+                    80 rows ·
+                    6 columns
+                </div>
+
+                <details>
+                    <summary>View SQL query</summary>
+                    <pre><code>
+        SELECT
+            m.competition.competition_name AS competition,
+            m.season.season_name AS season,
+            COUNT(e.id) AS shots,
+            COUNT(e.shot.statsbomb_xg) AS shots_with_xg,
+            ROUND(
+                AVG(e.shot.statsbomb_xg),
+                3
+            ) AS mean_xg,
+            ROUND(
+                SUM(e.shot.statsbomb_xg),
+                2
+            ) AS total_xg
+        FROM matches AS m
+        JOIN events AS e
+            ON m.match_id = TRY_CAST(
+                regexp_extract(
+                    e.filename,
+                    '([0-9]+)[.]json$',
+                    1
+                ) AS BIGINT
+            )
+        WHERE e.type.name = 'Shot'
+        GROUP BY
+            m.competition.competition_name,
+            m.season.season_name
+        ORDER BY
+            shots DESC,
+            competition,
+            season
+    </code></pre>
+                </details>
+
+                <div class="table-container">
+                    <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>competition</th>
+      <th>season</th>
+      <th>shots</th>
+      <th>shots_with_xg</th>
+      <th>mean_xg</th>
+      <th>total_xg</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Serie A</td>
+      <td>2015/2016</td>
+      <td>9998</td>
+      <td>9998</td>
+      <td>0.092</td>
+      <td>920.78</td>
+    </tr>
+    <tr>
+      <td>Premier League</td>
+      <td>2015/2016</td>
+      <td>9908</td>
+      <td>9908</td>
+      <td>0.098</td>
+      <td>971.38</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2015/2016</td>
+      <td>9168</td>
+      <td>9168</td>
+      <td>0.107</td>
+      <td>979.77</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2015/2016</td>
+      <td>8814</td>
+      <td>8814</td>
+      <td>0.099</td>
+      <td>874.91</td>
+    </tr>
+    <tr>
+      <td>Liga F</td>
+      <td>2023/2024</td>
+      <td>6166</td>
+      <td>6166</td>
+      <td>0.106</td>
+      <td>652.95</td>
+    </tr>
+    <tr>
+      <td>Serie A Women</td>
+      <td>2023/2024</td>
+      <td>3734</td>
+      <td>3734</td>
+      <td>0.099</td>
+      <td>370.26</td>
+    </tr>
+    <tr>
+      <td>NWSL</td>
+      <td>2023</td>
+      <td>3530</td>
+      <td>3530</td>
+      <td>0.102</td>
+      <td>359.75</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2023/2024</td>
+      <td>3529</td>
+      <td>3529</td>
+      <td>0.111</td>
+      <td>393.11</td>
+    </tr>
+    <tr>
+      <td>Frauen Bundesliga</td>
+      <td>2023/2024</td>
+      <td>3300</td>
+      <td>3300</td>
+      <td>0.112</td>
+      <td>370.98</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2020/2021</td>
+      <td>3248</td>
+      <td>3248</td>
+      <td>0.117</td>
+      <td>380.43</td>
+    </tr>
+    <tr>
+      <td>Indian Super league</td>
+      <td>2021/2022</td>
+      <td>3095</td>
+      <td>3095</td>
+      <td>0.099</td>
+      <td>305.24</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2018/2019</td>
+      <td>2816</td>
+      <td>2816</td>
+      <td>0.107</td>
+      <td>300.72</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2019/2020</td>
+      <td>2223</td>
+      <td>2223</td>
+      <td>0.107</td>
+      <td>238.03</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>2018</td>
+      <td>1706</td>
+      <td>1706</td>
+      <td>0.119</td>
+      <td>203.30</td>
+    </tr>
+    <tr>
+      <td>Women's World Cup</td>
+      <td>2023</td>
+      <td>1678</td>
+      <td>1678</td>
+      <td>0.119</td>
+      <td>199.77</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>2022</td>
+      <td>1494</td>
+      <td>1494</td>
+      <td>0.126</td>
+      <td>188.02</td>
+    </tr>
+    <tr>
+      <td>UEFA Euro</td>
+      <td>2024</td>
+      <td>1340</td>
+      <td>1340</td>
+      <td>0.104</td>
+      <td>139.62</td>
+    </tr>
+    <tr>
+      <td>Women's World Cup</td>
+      <td>2019</td>
+      <td>1314</td>
+      <td>1314</td>
+      <td>0.109</td>
+      <td>142.85</td>
+    </tr>
+    <tr>
+      <td>UEFA Euro</td>
+      <td>2020</td>
+      <td>1289</td>
+      <td>1289</td>
+      <td>0.127</td>
+      <td>163.17</td>
+    </tr>
+    <tr>
+      <td>African Cup of Nations</td>
+      <td>2023</td>
+      <td>1244</td>
+      <td>1244</td>
+      <td>0.133</td>
+      <td>165.43</td>
+    </tr>
+    <tr>
+      <td>NWSL</td>
+      <td>2018</td>
+      <td>1041</td>
+      <td>1041</td>
+      <td>0.119</td>
+      <td>123.42</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2017/2018</td>
+      <td>971</td>
+      <td>971</td>
+      <td>0.112</td>
+      <td>109.17</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2014/2015</td>
+      <td>931</td>
+      <td>931</td>
+      <td>0.119</td>
+      <td>110.77</td>
+    </tr>
+    <tr>
+      <td>Premier League</td>
+      <td>2003/2004</td>
+      <td>929</td>
+      <td>929</td>
+      <td>0.099</td>
+      <td>91.76</td>
+    </tr>
+    <tr>
+      <td>1. Bundesliga</td>
+      <td>2023/2024</td>
+      <td>916</td>
+      <td>916</td>
+      <td>0.110</td>
+      <td>100.50</td>
+    </tr>
+    <tr>
+      <td>UEFA Women's Euro</td>
+      <td>2025</td>
+      <td>913</td>
+      <td>913</td>
+      <td>0.135</td>
+      <td>123.27</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2018/2019</td>
+      <td>887</td>
+      <td>887</td>
+      <td>0.109</td>
+      <td>97.08</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2016/2017</td>
+      <td>882</td>
+      <td>882</td>
+      <td>0.116</td>
+      <td>102.33</td>
+    </tr>
+    <tr>
+      <td>UEFA Women's Euro</td>
+      <td>2022</td>
+      <td>881</td>
+      <td>881</td>
+      <td>0.106</td>
+      <td>93.59</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2011/2012</td>
+      <td>873</td>
+      <td>873</td>
+      <td>0.125</td>
+      <td>109.22</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2022/2023</td>
+      <td>851</td>
+      <td>851</td>
+      <td>0.120</td>
+      <td>102.16</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2009/2010</td>
+      <td>843</td>
+      <td>843</td>
+      <td>0.107</td>
+      <td>90.39</td>
+    </tr>
+    <tr>
+      <td>1. Bundesliga</td>
+      <td>2015/2016</td>
+      <td>840</td>
+      <td>840</td>
+      <td>0.108</td>
+      <td>90.32</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2020/2021</td>
+      <td>839</td>
+      <td>839</td>
+      <td>0.128</td>
+      <td>107.42</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2013/2014</td>
+      <td>810</td>
+      <td>810</td>
+      <td>0.110</td>
+      <td>89.50</td>
+    </tr>
+    <tr>
+      <td>Copa America</td>
+      <td>2024</td>
+      <td>790</td>
+      <td>790</td>
+      <td>0.132</td>
+      <td>104.37</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2008/2009</td>
+      <td>765</td>
+      <td>765</td>
+      <td>0.120</td>
+      <td>91.57</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2019/2020</td>
+      <td>752</td>
+      <td>752</td>
+      <td>0.115</td>
+      <td>86.34</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2010/2011</td>
+      <td>739</td>
+      <td>739</td>
+      <td>0.114</td>
+      <td>84.53</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2012/2013</td>
+      <td>721</td>
+      <td>721</td>
+      <td>0.117</td>
+      <td>84.14</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2007/2008</td>
+      <td>700</td>
+      <td>700</td>
+      <td>0.102</td>
+      <td>71.23</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2006/2007</td>
+      <td>681</td>
+      <td>681</td>
+      <td>0.102</td>
+      <td>69.79</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2021/2022</td>
+      <td>681</td>
+      <td>681</td>
+      <td>0.116</td>
+      <td>79.30</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2005/2006</td>
+      <td>433</td>
+      <td>433</td>
+      <td>0.119</td>
+      <td>51.70</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1970</td>
+      <td>285</td>
+      <td>285</td>
+      <td>0.082</td>
+      <td>23.26</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1974</td>
+      <td>177</td>
+      <td>177</td>
+      <td>0.084</td>
+      <td>14.91</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2004/2005</td>
+      <td>158</td>
+      <td>158</td>
+      <td>0.084</td>
+      <td>13.32</td>
+    </tr>
+    <tr>
+      <td>Major League Soccer</td>
+      <td>2023</td>
+      <td>146</td>
+      <td>146</td>
+      <td>0.100</td>
+      <td>14.62</td>
+    </tr>
+    <tr>
+      <td>UEFA Europa League</td>
+      <td>1988/1989</td>
+      <td>89</td>
+      <td>89</td>
+      <td>0.080</td>
+      <td>7.13</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1958</td>
+      <td>88</td>
+      <td>88</td>
+      <td>0.118</td>
+      <td>10.41</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1986</td>
+      <td>88</td>
+      <td>88</td>
+      <td>0.092</td>
+      <td>8.13</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2011/2012</td>
+      <td>59</td>
+      <td>59</td>
+      <td>0.197</td>
+      <td>11.61</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2015/2016</td>
+      <td>53</td>
+      <td>53</td>
+      <td>0.230</td>
+      <td>12.17</td>
+    </tr>
+    <tr>
+      <td>North American League</td>
+      <td>1977</td>
+      <td>50</td>
+      <td>50</td>
+      <td>0.080</td>
+      <td>4.02</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2004/2005</td>
+      <td>49</td>
+      <td>49</td>
+      <td>0.229</td>
+      <td>11.22</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1962</td>
+      <td>43</td>
+      <td>43</td>
+      <td>0.076</td>
+      <td>3.26</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1972/1973</td>
+      <td>42</td>
+      <td>42</td>
+      <td>0.076</td>
+      <td>3.19</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1971/1972</td>
+      <td>35</td>
+      <td>35</td>
+      <td>0.059</td>
+      <td>2.07</td>
+    </tr>
+    <tr>
+      <td>Serie A</td>
+      <td>1986/1987</td>
+      <td>35</td>
+      <td>35</td>
+      <td>0.098</td>
+      <td>3.42</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1970/1971</td>
+      <td>34</td>
+      <td>34</td>
+      <td>0.084</td>
+      <td>2.86</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2009/2010</td>
+      <td>34</td>
+      <td>34</td>
+      <td>0.066</td>
+      <td>2.25</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2013/2014</td>
+      <td>32</td>
+      <td>32</td>
+      <td>0.115</td>
+      <td>3.67</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2014/2015</td>
+      <td>32</td>
+      <td>32</td>
+      <td>0.114</td>
+      <td>3.65</td>
+    </tr>
+    <tr>
+      <td>Liga Profesional</td>
+      <td>1997/1998</td>
+      <td>32</td>
+      <td>32</td>
+      <td>0.102</td>
+      <td>3.26</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2012/2013</td>
+      <td>30</td>
+      <td>30</td>
+      <td>0.153</td>
+      <td>4.59</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2018/2019</td>
+      <td>30</td>
+      <td>30</td>
+      <td>0.071</td>
+      <td>2.13</td>
+    </tr>
+    <tr>
+      <td>FIFA U20 World Cup</td>
+      <td>1979</td>
+      <td>30</td>
+      <td>30</td>
+      <td>0.072</td>
+      <td>2.17</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2017/2018</td>
+      <td>28</td>
+      <td>28</td>
+      <td>0.111</td>
+      <td>3.10</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>1973/1974</td>
+      <td>28</td>
+      <td>28</td>
+      <td>0.110</td>
+      <td>3.08</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1999/2000</td>
+      <td>27</td>
+      <td>27</td>
+      <td>0.070</td>
+      <td>1.88</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2016/2017</td>
+      <td>27</td>
+      <td>27</td>
+      <td>0.074</td>
+      <td>1.99</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1977/1978</td>
+      <td>27</td>
+      <td>27</td>
+      <td>0.072</td>
+      <td>1.95</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2010/2011</td>
+      <td>26</td>
+      <td>26</td>
+      <td>0.086</td>
+      <td>2.23</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1982/1983</td>
+      <td>25</td>
+      <td>25</td>
+      <td>0.122</td>
+      <td>3.05</td>
+    </tr>
+    <tr>
+      <td>Liga Profesional</td>
+      <td>1981</td>
+      <td>24</td>
+      <td>24</td>
+      <td>0.119</td>
+      <td>2.86</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2008/2009</td>
+      <td>23</td>
+      <td>23</td>
+      <td>0.102</td>
+      <td>2.35</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1990</td>
+      <td>23</td>
+      <td>23</td>
+      <td>0.122</td>
+      <td>2.80</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1983/1984</td>
+      <td>22</td>
+      <td>22</td>
+      <td>0.069</td>
+      <td>1.53</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2006/2007</td>
+      <td>20</td>
+      <td>20</td>
+      <td>0.069</td>
+      <td>1.38</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2003/2004</td>
+      <td>13</td>
+      <td>13</td>
+      <td>0.091</td>
+      <td>1.18</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+
+            </section>
+            
+            <section class="report-section">
+
+                <h2>08 — Validating missing or duplicated files</h2>
+
+                <p class="purpose">
+                    Validate the presence of all expected files and identify any missing or duplicated files.
+                </p>
+
+                <div class="metadata">
+                    1 rows ·
+                    3 columns
+                </div>
+
+                <details>
+                    <summary>View SQL query</summary>
+                    <pre><code>
+        WITH event_files AS (
+    SELECT
+        TRY_CAST(
+            regexp_extract(filename, '([0-9]+)[.]json$', 1)
+            AS BIGINT
+        ) AS match_id,
+        filename,
+        COUNT(*) AS event_count
+    FROM events
+    GROUP BY filename, match_id
+)
+SELECT
+    COUNT(*) AS event_files,
+    COUNT(DISTINCT match_id) AS distinct_match_ids,
+    COUNT(*) FILTER (WHERE match_id IS NULL) AS files_without_match_id
+FROM event_files;
+    </code></pre>
+                </details>
+
+                <div class="table-container">
+                    <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>event_files</th>
+      <th>distinct_match_ids</th>
+      <th>files_without_match_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>3961</td>
+      <td>3961</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+
+            </section>
+            
+            <section class="report-section">
+
+                <h2>09 — Fitting 360 into the picture</h2>
+
+                <p class="purpose">
+                    Starting to look at how the 360 data fits into  the overall picture of matches and events.
+                </p>
+
+                <div class="metadata">
+                    80 rows ·
+                    6 columns
+                </div>
+
+                <details>
+                    <summary>View SQL query</summary>
+                    <pre><code>
+    WITH matches_with_360 AS (
+        SELECT
+            TRY_CAST(
+                regexp_extract(
+                    file,
+                    '([0-9]+)[.]json$',
+                    1
+                ) AS BIGINT
+            ) AS match_id
+        FROM glob('data/raw/statsbomb/three-sixty/*.json')
+    )
+
+    SELECT
+        m.competition.competition_name AS competition,
+        m.season.season_name AS season,
+        COUNT(*) AS total_matches,
+        COUNT(m360.match_id) AS matches_with_360,
+        COUNT(*) - COUNT(m360.match_id) AS matches_without_360,
+        ROUND(
+            100.0 * COUNT(m360.match_id) / NULLIF(COUNT(*), 0),
+            2
+        ) AS percent_with_360
+    FROM matches AS m
+    LEFT JOIN matches_with_360 AS m360
+        ON m.match_id = m360.match_id
+    GROUP BY
+        m.competition.competition_name,
+        m.season.season_name
+    ORDER BY
+        matches_with_360 DESC,
+        competition,
+        season
+</code></pre>
+                </details>
+
+                <div class="table-container">
+                    <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>competition</th>
+      <th>season</th>
+      <th>total_matches</th>
+      <th>matches_with_360</th>
+      <th>matches_without_360</th>
+      <th>percent_with_360</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>2022</td>
+      <td>64</td>
+      <td>64</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>Women's World Cup</td>
+      <td>2023</td>
+      <td>64</td>
+      <td>64</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>UEFA Euro</td>
+      <td>2020</td>
+      <td>51</td>
+      <td>51</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>UEFA Euro</td>
+      <td>2024</td>
+      <td>51</td>
+      <td>51</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2020/2021</td>
+      <td>35</td>
+      <td>35</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>1. Bundesliga</td>
+      <td>2023/2024</td>
+      <td>34</td>
+      <td>34</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2022/2023</td>
+      <td>32</td>
+      <td>32</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>UEFA Women's Euro</td>
+      <td>2022</td>
+      <td>31</td>
+      <td>31</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>UEFA Women's Euro</td>
+      <td>2025</td>
+      <td>31</td>
+      <td>31</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2021/2022</td>
+      <td>26</td>
+      <td>26</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>Major League Soccer</td>
+      <td>2023</td>
+      <td>6</td>
+      <td>6</td>
+      <td>0</td>
+      <td>100.00</td>
+    </tr>
+    <tr>
+      <td>African Cup of Nations</td>
+      <td>2023</td>
+      <td>52</td>
+      <td>1</td>
+      <td>51</td>
+      <td>1.92</td>
+    </tr>
+    <tr>
+      <td>1. Bundesliga</td>
+      <td>2015/2016</td>
+      <td>34</td>
+      <td>0</td>
+      <td>34</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1970/1971</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1971/1972</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1972/1973</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>1999/2000</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2003/2004</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2004/2005</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2006/2007</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2008/2009</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2009/2010</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2010/2011</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2011/2012</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2012/2013</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2013/2014</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2014/2015</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2015/2016</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2016/2017</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2017/2018</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Champions League</td>
+      <td>2018/2019</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Copa America</td>
+      <td>2024</td>
+      <td>32</td>
+      <td>0</td>
+      <td>32</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1977/1978</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1982/1983</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Copa del Rey</td>
+      <td>1983/1984</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2018/2019</td>
+      <td>107</td>
+      <td>0</td>
+      <td>107</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2019/2020</td>
+      <td>87</td>
+      <td>0</td>
+      <td>87</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2020/2021</td>
+      <td>131</td>
+      <td>0</td>
+      <td>131</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FA Women's Super League</td>
+      <td>2023/2024</td>
+      <td>132</td>
+      <td>0</td>
+      <td>132</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FIFA U20 World Cup</td>
+      <td>1979</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1958</td>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1962</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1970</td>
+      <td>6</td>
+      <td>0</td>
+      <td>6</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1974</td>
+      <td>6</td>
+      <td>0</td>
+      <td>6</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1986</td>
+      <td>3</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>1990</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>FIFA World Cup</td>
+      <td>2018</td>
+      <td>64</td>
+      <td>0</td>
+      <td>64</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Frauen Bundesliga</td>
+      <td>2023/2024</td>
+      <td>132</td>
+      <td>0</td>
+      <td>132</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Indian Super league</td>
+      <td>2021/2022</td>
+      <td>115</td>
+      <td>0</td>
+      <td>115</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>1973/1974</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2004/2005</td>
+      <td>7</td>
+      <td>0</td>
+      <td>7</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2005/2006</td>
+      <td>17</td>
+      <td>0</td>
+      <td>17</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2006/2007</td>
+      <td>26</td>
+      <td>0</td>
+      <td>26</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2007/2008</td>
+      <td>27</td>
+      <td>0</td>
+      <td>27</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2008/2009</td>
+      <td>31</td>
+      <td>0</td>
+      <td>31</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2009/2010</td>
+      <td>35</td>
+      <td>0</td>
+      <td>35</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2010/2011</td>
+      <td>33</td>
+      <td>0</td>
+      <td>33</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2011/2012</td>
+      <td>37</td>
+      <td>0</td>
+      <td>37</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2012/2013</td>
+      <td>32</td>
+      <td>0</td>
+      <td>32</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2013/2014</td>
+      <td>31</td>
+      <td>0</td>
+      <td>31</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2014/2015</td>
+      <td>38</td>
+      <td>0</td>
+      <td>38</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2015/2016</td>
+      <td>380</td>
+      <td>0</td>
+      <td>380</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2016/2017</td>
+      <td>34</td>
+      <td>0</td>
+      <td>34</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2017/2018</td>
+      <td>36</td>
+      <td>0</td>
+      <td>36</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2018/2019</td>
+      <td>34</td>
+      <td>0</td>
+      <td>34</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>La Liga</td>
+      <td>2019/2020</td>
+      <td>33</td>
+      <td>0</td>
+      <td>33</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Liga F</td>
+      <td>2023/2024</td>
+      <td>240</td>
+      <td>0</td>
+      <td>240</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Liga Profesional</td>
+      <td>1981</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Liga Profesional</td>
+      <td>1997/1998</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Ligue 1</td>
+      <td>2015/2016</td>
+      <td>377</td>
+      <td>0</td>
+      <td>377</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>NWSL</td>
+      <td>2018</td>
+      <td>36</td>
+      <td>0</td>
+      <td>36</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>NWSL</td>
+      <td>2023</td>
+      <td>137</td>
+      <td>0</td>
+      <td>137</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>North American League</td>
+      <td>1977</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Premier League</td>
+      <td>2003/2004</td>
+      <td>38</td>
+      <td>0</td>
+      <td>38</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Premier League</td>
+      <td>2015/2016</td>
+      <td>380</td>
+      <td>0</td>
+      <td>380</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Serie A</td>
+      <td>1986/1987</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Serie A</td>
+      <td>2015/2016</td>
+      <td>380</td>
+      <td>0</td>
+      <td>380</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Serie A Women</td>
+      <td>2023/2024</td>
+      <td>130</td>
+      <td>0</td>
+      <td>130</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>UEFA Europa League</td>
+      <td>1988/1989</td>
+      <td>3</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <td>Women's World Cup</td>
+      <td>2019</td>
+      <td>52</td>
+      <td>0</td>
+      <td>52</td>
+      <td>0.00</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+
+            </section>
+            
+
+</main>
+
+<footer>
+    StatsBomb Open Data · SQL Discovery
+</footer>
+
+</body>
+</html>

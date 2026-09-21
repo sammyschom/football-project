@@ -1,0 +1,36 @@
+event_type,event_count,match_files
+Pass,3836550,3961
+Ball Receipt*,3589099,3961
+Carry,3007953,3961
+Pressure,1301279,3961
+Ball Recovery,433698,3961
+Duel,287707,3961
+Clearance,183434,3961
+Block,157782,3961
+Dribble,138745,3961
+Goal Keeper,123920,3961
+Miscontrol,118271,3961
+Foul Committed,108845,3961
+Dispossessed,103657,3961
+Foul Won,103354,3961
+Shot,101227,3961
+Interception,90879,3961
+Dribbled Past,85864,3961
+Substitution,26481,3958
+Injury Stoppage,17200,3570
+Half Start,16120,3961
+Half End,16120,3961
+50/50,14549,2670
+Tactical Shift,10865,3579
+Starting XI,7922,3961
+Referee Ball-Drop,5977,1963
+Shield,5578,2894
+Player Off,4271,2326
+Player On,4230,2318
+Bad Behaviour,2816,1684
+Camera On,2571,106
+Error,2158,1536
+Offside,1400,1166
+Camera off,690,106
+Own Goal Against,387,375
+Own Goal For,387,375

@@ -1,0 +1,5 @@
+table_schema,table_name
+main,competitions
+main,events
+main,lineups
+main,matches

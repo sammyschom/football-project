@@ -51,26 +51,27 @@ queries = [
 
 
     {
-        "title": "02 — Competition and season inventory",
-        "purpose": (
-            "Identify the competitions and seasons "
-            "available in the database."
-        ),
-        "sql": """
-            SELECT
-                competition_id,
-                competition_name,
-                season_id,
-                season_name
-            FROM competitions
-            ORDER BY
-                competition_name,
-                season_name
-        """
-    },
+    "title": "02 — Matches by competition",
+    "purpose": (
+        "Count the total number of games available "
+        "for each competition across all seasons."
+    ),
+    "sql": """
+        SELECT
+            m.competition.competition_id AS competition_id,
+            m.competition.competition_name AS competition_name,
+            COUNT(DISTINCT m.match_id) AS game_count
+        FROM matches AS m
+        GROUP BY
+            m.competition.competition_id,
+            m.competition.competition_name
+        ORDER BY
+            game_count DESC,
+            competition_name
+    """
+},
 
     
-
     {
         "title": "03 — Database column inventory",
         "purpose": (
@@ -94,6 +95,204 @@ queries = [
                 ordinal_position
         """
     },
+
+    {
+            "title": "04 — Counts by competition AND season",
+            "purpose": (
+                "Count the number of games by competition and season."
+                "available across the database."
+            ),
+            "sql": """
+                SELECT
+    competition.competition_name AS competition,
+    season.season_name AS season,
+    COUNT(DISTINCT match_id) AS matches,
+    MIN(match_date) AS first_match,
+    MAX(match_date) AS last_match
+FROM matches
+GROUP BY
+    competition.competition_name,
+    season.season_name
+ORDER BY
+    matches DESC,
+    competition,
+    season;
+            """
+        },
+
+         {
+    "title": "05 — Matching events to matches",
+    "purpose": (
+        "Match event files to their corresponding games "
+        "and count events per competition and season."
+    ),
+    "sql": """
+    WITH event_counts AS (
+        SELECT
+            TRY_CAST(
+                regexp_extract(
+                    filename,
+                    '([0-9]+)[.]json$',
+                    1
+                ) AS BIGINT
+            ) AS match_id,
+            COUNT(*) AS events
+        FROM events
+        GROUP BY match_id
+    )
+
+    SELECT
+        m.competition.competition_name AS competition,
+        m.season.season_name AS season,
+        COUNT(*) AS matches,
+        COUNT(ec.match_id) AS matches_with_events,
+        COALESCE(SUM(ec.events), 0) AS events,
+        COALESCE(
+            ROUND(
+                SUM(ec.events) * 1.0
+                / NULLIF(COUNT(ec.match_id), 0),
+                0
+            ),
+            0
+        ) AS events_per_match
+    FROM matches AS m
+    LEFT JOIN event_counts AS ec
+        ON m.match_id = ec.match_id
+    GROUP BY
+        m.competition.competition_name,
+        m.season.season_name
+    ORDER BY
+        events DESC,
+        competition,
+        season
+"""
+},
+
+{
+        "title": "06 — What event types?",
+        "purpose": (
+            "List the event types available in the events table."
+        ),
+        "sql": """
+            SELECT
+    type.name AS event_type,
+    COUNT(*) AS event_count,
+    COUNT(DISTINCT filename) AS match_files
+FROM events
+GROUP BY type.name
+ORDER BY event_count DESC;
+        """
+    },
+
+    {
+    "title": "07 — Exploring shot and xG data",
+    "purpose": (
+        "Explore shot events and their associated xG values "
+        "by competition and season."
+    ),
+    "sql": """
+        SELECT
+            m.competition.competition_name AS competition,
+            m.season.season_name AS season,
+            COUNT(e.id) AS shots,
+            COUNT(e.shot.statsbomb_xg) AS shots_with_xg,
+            ROUND(
+                AVG(e.shot.statsbomb_xg),
+                3
+            ) AS mean_xg,
+            ROUND(
+                SUM(e.shot.statsbomb_xg),
+                2
+            ) AS total_xg
+        FROM matches AS m
+        JOIN events AS e
+            ON m.match_id = TRY_CAST(
+                regexp_extract(
+                    e.filename,
+                    '([0-9]+)[.]json$',
+                    1
+                ) AS BIGINT
+            )
+        WHERE e.type.name = 'Shot'
+        GROUP BY
+            m.competition.competition_name,
+            m.season.season_name
+        ORDER BY
+            shots DESC,
+            competition,
+            season
+    """
+},
+
+{
+    "title": "08 — Validating missing or duplicated files",
+    "purpose": (
+        "Validate the presence of all expected files and identify any "
+        "missing or duplicated files."
+    ),
+    "sql": """
+        WITH event_files AS (
+    SELECT
+        TRY_CAST(
+            regexp_extract(filename, '([0-9]+)[.]json$', 1)
+            AS BIGINT
+        ) AS match_id,
+        filename,
+        COUNT(*) AS event_count
+    FROM events
+    GROUP BY filename, match_id
+)
+SELECT
+    COUNT(*) AS event_files,
+    COUNT(DISTINCT match_id) AS distinct_match_ids,
+    COUNT(*) FILTER (WHERE match_id IS NULL) AS files_without_match_id
+FROM event_files;
+    """
+},
+
+{
+    "title": "09 — Fitting 360 into the picture",
+    "purpose": (
+        "Starting to look at how the 360 data fits into "
+        " the overall picture of matches and events."
+    ),
+    "sql": """
+    WITH matches_with_360 AS (
+        SELECT
+            TRY_CAST(
+                regexp_extract(
+                    file,
+                    '([0-9]+)[.]json$',
+                    1
+                ) AS BIGINT
+            ) AS match_id
+        FROM glob('data/raw/statsbomb/three-sixty/*.json')
+    )
+
+    SELECT
+        m.competition.competition_name AS competition,
+        m.season.season_name AS season,
+        COUNT(*) AS total_matches,
+        COUNT(m360.match_id) AS matches_with_360,
+        COUNT(*) - COUNT(m360.match_id) AS matches_without_360,
+        ROUND(
+            100.0 * COUNT(m360.match_id) / NULLIF(COUNT(*), 0),
+            2
+        ) AS percent_with_360
+    FROM matches AS m
+    LEFT JOIN matches_with_360 AS m360
+        ON m.match_id = m360.match_id
+    GROUP BY
+        m.competition.competition_name,
+        m.season.season_name
+    ORDER BY
+        matches_with_360 DESC,
+        competition,
+        season
+"""
+},
+
+
 ]
 
 

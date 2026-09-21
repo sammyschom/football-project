@@ -1,0 +1,80 @@
+table_name,ordinal_position,column_name,data_type,is_nullable
+competitions,1,competition_id,BIGINT,YES
+competitions,2,season_id,BIGINT,YES
+competitions,3,country_name,VARCHAR,YES
+competitions,4,competition_name,VARCHAR,YES
+competitions,5,competition_gender,VARCHAR,YES
+competitions,6,competition_youth,BOOLEAN,YES
+competitions,7,competition_international,BOOLEAN,YES
+competitions,8,season_name,VARCHAR,YES
+competitions,9,match_updated,VARCHAR,YES
+competitions,10,match_updated_360,VARCHAR,YES
+competitions,11,match_available_360,VARCHAR,YES
+competitions,12,match_available,VARCHAR,YES
+competitions,13,filename,VARCHAR,YES
+events,1,id,UUID,YES
+events,2,index,BIGINT,YES
+events,3,period,BIGINT,YES
+events,4,timestamp,TIME,YES
+events,5,minute,BIGINT,YES
+events,6,second,BIGINT,YES
+events,7,type,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,8,possession,BIGINT,YES
+events,9,possession_team,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,10,play_pattern,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,11,team,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,12,duration,DOUBLE,YES
+events,13,tactics,"STRUCT(formation BIGINT, lineup STRUCT(player STRUCT(id BIGINT, ""name"" VARCHAR), ""position"" STRUCT(id BIGINT, ""name"" VARCHAR), jersey_number BIGINT)[])",YES
+events,14,related_events,UUID[],YES
+events,15,player,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,16,position,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,17,location,DOUBLE[],YES
+events,18,pass,"STRUCT(recipient STRUCT(id BIGINT, ""name"" VARCHAR), length DOUBLE, angle DOUBLE, height STRUCT(id BIGINT, ""name"" VARCHAR), end_location DOUBLE[], body_part STRUCT(id BIGINT, ""name"" VARCHAR), ""type"" STRUCT(id BIGINT, ""name"" VARCHAR), switch BOOLEAN, outcome STRUCT(id BIGINT, ""name"" VARCHAR), aerial_won BOOLEAN, assisted_shot_id UUID, shot_assist BOOLEAN, ""cross"" BOOLEAN, through_ball BOOLEAN, technique STRUCT(id BIGINT, ""name"" VARCHAR), inswinging BOOLEAN, miscommunication BOOLEAN, cut_back BOOLEAN, deflected BOOLEAN, no_touch BOOLEAN, straight BOOLEAN, goal_assist BOOLEAN, outswinging BOOLEAN, backheel BOOLEAN)",YES
+events,19,carry,STRUCT(end_location DOUBLE[]),YES
+events,20,ball_receipt,"STRUCT(outcome STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+events,21,under_pressure,BOOLEAN,YES
+events,22,duel,"STRUCT(""type"" STRUCT(id BIGINT, ""name"" VARCHAR), outcome STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+events,23,counterpress,BOOLEAN,YES
+events,24,interception,"STRUCT(outcome STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+events,25,off_camera,BOOLEAN,YES
+events,26,ball_recovery,"STRUCT(recovery_failure BOOLEAN, offensive BOOLEAN)",YES
+events,27,shot,"STRUCT(statsbomb_xg DOUBLE, end_location DOUBLE[], key_pass_id UUID, outcome STRUCT(id BIGINT, ""name"" VARCHAR), first_time BOOLEAN, technique STRUCT(id BIGINT, ""name"" VARCHAR), body_part STRUCT(id BIGINT, ""name"" VARCHAR), ""type"" STRUCT(id BIGINT, ""name"" VARCHAR), freeze_frame STRUCT(""location"" DOUBLE[], player STRUCT(id BIGINT, ""name"" VARCHAR), ""position"" STRUCT(id BIGINT, ""name"" VARCHAR), teammate BOOLEAN)[], aerial_won BOOLEAN, one_on_one BOOLEAN, saved_to_post BOOLEAN, deflected BOOLEAN, saved_off_target BOOLEAN, open_goal BOOLEAN, follows_dribble BOOLEAN, redirect BOOLEAN, kick_off BOOLEAN)",YES
+events,28,goalkeeper,"STRUCT(end_location DOUBLE[], ""type"" STRUCT(id BIGINT, ""name"" VARCHAR), ""position"" STRUCT(id BIGINT, ""name"" VARCHAR), outcome STRUCT(id BIGINT, ""name"" VARCHAR), technique STRUCT(id BIGINT, ""name"" VARCHAR), body_part STRUCT(id BIGINT, ""name"" VARCHAR), shot_saved_to_post BOOLEAN, shot_saved_off_target BOOLEAN, punched_out BOOLEAN, lost_out BOOLEAN, lost_in_play BOOLEAN, success_out BOOLEAN, success_in_play BOOLEAN, saved_to_post BOOLEAN, penalty_saved_to_post BOOLEAN)",YES
+events,29,clearance,"STRUCT(left_foot BOOLEAN, body_part STRUCT(id BIGINT, ""name"" VARCHAR), right_foot BOOLEAN, head BOOLEAN, aerial_won BOOLEAN, other BOOLEAN)",YES
+events,30,block,"STRUCT(deflection BOOLEAN, offensive BOOLEAN, save_block BOOLEAN)",YES
+events,31,dribble,"STRUCT(nutmeg BOOLEAN, outcome STRUCT(id BIGINT, ""name"" VARCHAR), overrun BOOLEAN, no_touch BOOLEAN)",YES
+events,32,foul_committed,"STRUCT(offensive BOOLEAN, card STRUCT(id BIGINT, ""name"" VARCHAR), advantage BOOLEAN, ""type"" STRUCT(id BIGINT, ""name"" VARCHAR), penalty BOOLEAN)",YES
+events,33,foul_won,"STRUCT(defensive BOOLEAN, advantage BOOLEAN, penalty BOOLEAN)",YES
+events,34,out,BOOLEAN,YES
+events,35,miscontrol,STRUCT(aerial_won BOOLEAN),YES
+events,36,bad_behaviour,"STRUCT(card STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+events,37,substitution,"STRUCT(outcome STRUCT(id BIGINT, ""name"" VARCHAR), replacement STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+events,38,50_50,"STRUCT(outcome STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+events,39,injury_stoppage,STRUCT(in_chain BOOLEAN),YES
+events,40,half_start,STRUCT(late_video_start BOOLEAN),YES
+events,41,player_off,STRUCT(permanent BOOLEAN),YES
+events,42,half_end,STRUCT(early_video_end BOOLEAN),YES
+events,43,filename,VARCHAR,YES
+lineups,1,team_id,BIGINT,YES
+lineups,2,team_name,VARCHAR,YES
+lineups,3,lineup,"STRUCT(player_id BIGINT, player_name VARCHAR, player_nickname VARCHAR, jersey_number BIGINT, country STRUCT(id BIGINT, ""name"" VARCHAR), cards STRUCT(""time"" VARCHAR, card_type VARCHAR, reason VARCHAR, period BIGINT)[], positions STRUCT(position_id BIGINT, ""position"" VARCHAR, ""from"" VARCHAR, ""to"" VARCHAR, from_period BIGINT, to_period BIGINT, start_reason VARCHAR, end_reason VARCHAR)[])[]",YES
+lineups,4,filename,VARCHAR,YES
+matches,1,match_id,BIGINT,YES
+matches,2,match_date,DATE,YES
+matches,3,kick_off,TIME,YES
+matches,4,competition,"STRUCT(competition_id BIGINT, country_name VARCHAR, competition_name VARCHAR)",YES
+matches,5,season,"STRUCT(season_id BIGINT, season_name VARCHAR)",YES
+matches,6,home_team,"STRUCT(home_team_id BIGINT, home_team_name VARCHAR, home_team_gender VARCHAR, home_team_group VARCHAR, country STRUCT(id BIGINT, ""name"" VARCHAR), managers STRUCT(id BIGINT, ""name"" VARCHAR, nickname VARCHAR, dob DATE, country STRUCT(id BIGINT, ""name"" VARCHAR))[])",YES
+matches,7,away_team,"STRUCT(away_team_id BIGINT, away_team_name VARCHAR, away_team_gender VARCHAR, away_team_group VARCHAR, country STRUCT(id BIGINT, ""name"" VARCHAR), managers STRUCT(id BIGINT, ""name"" VARCHAR, nickname VARCHAR, dob DATE, country STRUCT(id BIGINT, ""name"" VARCHAR))[])",YES
+matches,8,home_score,BIGINT,YES
+matches,9,away_score,BIGINT,YES
+matches,10,match_status,VARCHAR,YES
+matches,11,match_status_360,VARCHAR,YES
+matches,12,last_updated,VARCHAR,YES
+matches,13,last_updated_360,VARCHAR,YES
+matches,14,metadata,"STRUCT(data_version VARCHAR, shot_fidelity_version VARCHAR, xy_fidelity_version VARCHAR)",YES
+matches,15,match_week,BIGINT,YES
+matches,16,competition_stage,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+matches,17,stadium,"STRUCT(id BIGINT, ""name"" VARCHAR, country STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+matches,18,referee,"STRUCT(id BIGINT, ""name"" VARCHAR, country STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+matches,19,filename,VARCHAR,YES
