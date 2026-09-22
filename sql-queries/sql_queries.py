@@ -1,26 +1,41 @@
+#Notes:
+# Using match_id = 267533 for now to test pipeline with a single match.
+# some shift enter is important here...
+
+# %%
 from pathlib import Path
-import pprint
 import duckdb
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATABASE_PATH = PROJECT_ROOT / "data" / "processed" / "statsbomb.duckdb"
-con = duckdb.connect(str(DATABASE_PATH))
+con = duckdb.connect(str(DATABASE_PATH), read_only=True)
 
 # put sql queries here between the """ and """ triple quotes
-result = con.sql(
-"""
+# %%
+match_query = """
+
 SELECT
-        competition.competition_name AS competition,
-        COUNT(*) AS games
-    FROM matches
-    GROUP BY competition.competition_name
-    ORDER BY games DESC
+    match_id,
+    match_date,
+    competition.competition_name AS competition,
+    season.season_name AS season,
+    home_team.home_team_name AS home_team,
+    away_team.away_team_name AS away_team,
+    home_score,
+    away_score
+FROM matches
+WHERE season.season_name = '2015/2016'
+  AND (
+        home_team.home_team_name = 'Barcelona'
+        OR away_team.away_team_name = 'Barcelona'
+      )
+ORDER BY match_date;
 """
-)
 
-result.show(max_rows=1000)
+matches_df = con.execute(match_query).fetchdf()
+matches_df
 
-
+#%%
 
 #----------------------------------------------------------
 #----------------------------------------------------------
@@ -117,3 +132,5 @@ FROM read_json_auto(
 CROSS JOIN UNNEST(data.freeze_frame) AS frame(frame_data)
 LIMIT 20;
 '''
+
+# %%
