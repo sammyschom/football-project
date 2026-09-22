@@ -15,7 +15,6 @@ SELECT
     FROM matches
     GROUP BY competition.competition_name
     ORDER BY games DESC
-
 """
 )
 

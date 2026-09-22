@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from datetime import datetime
 
@@ -71,7 +70,6 @@ queries = [
     """
 },
 
-    
     {
         "title": "03 — Database column inventory",
         "purpose": (
@@ -290,6 +288,99 @@ FROM event_files;
         competition,
         season
 """
+},
+
+{
+    "title": "10 — Match event timeline",
+    "purpose": (
+        "Show each event in match order, including the event type, "
+        "teams, players, timing, location, possession, and detailed "
+        "event-specific StatsBomb data."
+    ),
+    "sql": """
+        SELECT
+            TRY_CAST(
+                regexp_extract(
+                    e.filename,
+                    '([0-9]+)[.]json$',
+                    1
+                ) AS BIGINT
+            ) AS match_id,
+
+            m.match_date,
+            m.home_team.home_team_name AS home_team,
+            m.away_team.away_team_name AS away_team,
+            m.competition.competition_name AS competition,
+            m.season.season_name AS season,
+
+            e.id AS event_id,
+            e.index AS event_index,
+            e.period,
+            e.timestamp,
+            e.minute,
+            e.second,
+
+            e.type.name AS event_type,
+            e.team.name AS team,
+            e.player.name AS player,
+            e.position.name AS position,
+
+            e.possession,
+            e.possession_team.name AS possession_team,
+
+            e.location[1] AS location_x,
+            e.location[2] AS location_y,
+            e.duration,
+            e.under_pressure,
+            e.off_camera,
+            e.out,
+
+            e.pass.recipient.name AS pass_recipient,
+            e.pass.end_location[1] AS pass_end_x,
+            e.pass.end_location[2] AS pass_end_y,
+            e.pass.length AS pass_length,
+            e.pass.angle AS pass_angle,
+            e.pass.height.name AS pass_height,
+            e.pass.outcome.name AS pass_outcome,
+
+            e.carry.end_location[1] AS carry_end_x,
+            e.carry.end_location[2] AS carry_end_y,
+
+            e.shot.statsbomb_xg AS shot_xg,
+            e.shot.outcome.name AS shot_outcome,
+            e.shot.body_part.name AS shot_body_part,
+            e.shot.technique.name AS shot_technique,
+
+            e.duel.type.name AS duel_type,
+            e.duel.outcome.name AS duel_outcome,
+
+            e.foul_committed.type.name AS foul_type,
+            e.foul_committed.card.name AS foul_card,
+
+            e.foul_won.defensive AS foul_won_defensive,
+            e.foul_won.advantage AS foul_won_advantage,
+            e.foul_won.penalty AS foul_won_penalty,
+
+            e.substitution.replacement.name AS substitution_replacement,
+            e.substitution.outcome.name AS substitution_outcome
+
+        FROM events AS e
+        LEFT JOIN matches AS m
+            ON m.match_id = TRY_CAST(
+                regexp_extract(
+                    e.filename,
+                    '([0-9]+)[.]json$',
+                    1
+                ) AS BIGINT
+            )
+        WHERE match_id = 19714
+        ORDER BY
+            match_id,
+            e.period,
+            e.minute,
+            e.second,
+            e.index
+    """
 },
 
 

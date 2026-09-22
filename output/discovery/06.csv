@@ -18,8 +18,8 @@ Interception,90879,3961
 Dribbled Past,85864,3961
 Substitution,26481,3958
 Injury Stoppage,17200,3570
-Half Start,16120,3961
 Half End,16120,3961
+Half Start,16120,3961
 50/50,14549,2670
 Tactical Shift,10865,3579
 Starting XI,7922,3961
@@ -32,5 +32,5 @@ Camera On,2571,106
 Error,2158,1536
 Offside,1400,1166
 Camera off,690,106
-Own Goal Against,387,375
 Own Goal For,387,375
+Own Goal Against,387,375
