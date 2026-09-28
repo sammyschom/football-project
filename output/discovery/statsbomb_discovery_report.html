@@ -125,7 +125,7 @@ footer {
 <header>
     <h1>StatsBomb Open Data</h1>
     <p>Data Discovery & Coverage Report</p>
-    <p>Generated: 22 September 2026, 18:36</p>
+    <p>Generated: 28 September 2026, 13:02</p>
 </header>
 
 <main>
@@ -153,7 +153,7 @@ footer {
                 </p>
 
                 <div class="metadata">
-                    4 rows ·
+                    5 rows ·
                     2 columns
                 </div>
 
@@ -198,6 +198,10 @@ footer {
     <tr>
       <td>main</td>
       <td>matches</td>
+    </tr>
+    <tr>
+      <td>staging</td>
+      <td>events</td>
     </tr>
   </tbody>
 </table>
@@ -380,7 +384,7 @@ footer {
                 </p>
 
                 <div class="metadata">
-                    79 rows ·
+                    113 rows ·
                     5 columns
                 </div>
 
@@ -510,7 +514,21 @@ footer {
     <tr>
       <td>events</td>
       <td>1</td>
+      <td>match_id</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>1</td>
       <td>id</td>
+      <td>UUID</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>2</td>
+      <td>event_id</td>
       <td>UUID</td>
       <td>YES</td>
     </tr>
@@ -530,7 +548,28 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>3</td>
+      <td>event_index</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>4</td>
+      <td>period</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>4</td>
+      <td>timestamp</td>
+      <td>TIME</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>5</td>
       <td>timestamp</td>
       <td>TIME</td>
       <td>YES</td>
@@ -551,6 +590,13 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>6</td>
+      <td>minute</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>7</td>
       <td>type</td>
       <td>STRUCT(id BIGINT, "name" VARCHAR)</td>
@@ -558,8 +604,22 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>7</td>
+      <td>second</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>8</td>
       <td>possession</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>8</td>
+      <td>event_type_id</td>
       <td>BIGINT</td>
       <td>YES</td>
     </tr>
@@ -572,9 +632,23 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>9</td>
+      <td>event_type</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>10</td>
       <td>play_pattern</td>
       <td>STRUCT(id BIGINT, "name" VARCHAR)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>10</td>
+      <td>possession</td>
+      <td>BIGINT</td>
       <td>YES</td>
     </tr>
     <tr>
@@ -586,9 +660,23 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>11</td>
+      <td>possession_team_id</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>12</td>
       <td>duration</td>
       <td>DOUBLE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>12</td>
+      <td>possession_team</td>
+      <td>VARCHAR</td>
       <td>YES</td>
     </tr>
     <tr>
@@ -600,9 +688,30 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>13</td>
+      <td>play_pattern</td>
+      <td>VARCHAR</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>14</td>
       <td>related_events</td>
       <td>UUID[]</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>14</td>
+      <td>team_id</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>15</td>
+      <td>team</td>
+      <td>VARCHAR</td>
       <td>YES</td>
     </tr>
     <tr>
@@ -621,9 +730,23 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>16</td>
+      <td>player_id</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>17</td>
       <td>location</td>
       <td>DOUBLE[]</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>17</td>
+      <td>player</td>
+      <td>VARCHAR</td>
       <td>YES</td>
     </tr>
     <tr>
@@ -635,9 +758,23 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>18</td>
+      <td>position_id</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>19</td>
       <td>carry</td>
       <td>STRUCT(end_location DOUBLE[])</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>19</td>
+      <td>position</td>
+      <td>VARCHAR</td>
       <td>YES</td>
     </tr>
     <tr>
@@ -649,6 +786,13 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>20</td>
+      <td>location_x</td>
+      <td>DOUBLE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>21</td>
       <td>under_pressure</td>
       <td>BOOLEAN</td>
@@ -656,9 +800,30 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>21</td>
+      <td>location_y</td>
+      <td>DOUBLE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>22</td>
       <td>duel</td>
       <td>STRUCT("type" STRUCT(id BIGINT, "name" VARCHAR), outcome STRUCT(id BIGINT, "name" VARCHAR))</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>22</td>
+      <td>under_pressure</td>
+      <td>BOOLEAN</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>23</td>
+      <td>counterpress</td>
+      <td>BOOLEAN</td>
       <td>YES</td>
     </tr>
     <tr>
@@ -677,9 +842,23 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>24</td>
+      <td>pass_recipient_id</td>
+      <td>BIGINT</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>25</td>
       <td>off_camera</td>
       <td>BOOLEAN</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>25</td>
+      <td>pass_recipient</td>
+      <td>VARCHAR</td>
       <td>YES</td>
     </tr>
     <tr>
@@ -691,9 +870,30 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>26</td>
+      <td>pass_length</td>
+      <td>DOUBLE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>27</td>
       <td>shot</td>
       <td>STRUCT(statsbomb_xg DOUBLE, end_location DOUBLE[], key_pass_id UUID, outcome STRUCT(id BIGINT, "name" VARCHAR), first_time BOOLEAN, technique STRUCT(id BIGINT, "name" VARCHAR), body_part STRUCT(id BIGINT, "name" VARCHAR), "type" STRUCT(id BIGINT, "name" VARCHAR), freeze_frame STRUCT("location" DOUBLE[], player STRUCT(id BIGINT, "name" VARCHAR), "position" STRUCT(id BIGINT, "name" VARCHAR), teammate BOOLEAN)[], aerial_won BOOLEAN, one_on_one BOOLEAN, saved_to_post BOOLEAN, deflected BOOLEAN, saved_off_target BOOLEAN, open_goal BOOLEAN, follows_dribble BOOLEAN, redirect BOOLEAN, kick_off BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>27</td>
+      <td>pass_angle</td>
+      <td>DOUBLE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>28</td>
+      <td>pass_height</td>
+      <td>VARCHAR</td>
       <td>YES</td>
     </tr>
     <tr>
@@ -712,9 +912,30 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>29</td>
+      <td>pass_end_x</td>
+      <td>DOUBLE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>30</td>
+      <td>pass_end_y</td>
+      <td>DOUBLE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>30</td>
       <td>block</td>
       <td>STRUCT(deflection BOOLEAN, offensive BOOLEAN, save_block BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>31</td>
+      <td>pass_outcome</td>
+      <td>VARCHAR</td>
       <td>YES</td>
     </tr>
     <tr>
@@ -733,9 +954,30 @@ footer {
     </tr>
     <tr>
       <td>events</td>
+      <td>32</td>
+      <td>carry_end_x</td>
+      <td>DOUBLE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>33</td>
+      <td>carry_end_y</td>
+      <td>DOUBLE</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
       <td>33</td>
       <td>foul_won</td>
       <td>STRUCT(defensive BOOLEAN, advantage BOOLEAN, penalty BOOLEAN)</td>
+      <td>YES</td>
+    </tr>
+    <tr>
+      <td>events</td>
+      <td>34</td>
+      <td>source_filename</td>
+      <td>VARCHAR</td>
       <td>YES</td>
     </tr>
     <tr>
@@ -2434,12 +2676,12 @@ ORDER BY event_count DESC;
       <td>3570</td>
     </tr>
     <tr>
-      <td>Half End</td>
+      <td>Half Start</td>
       <td>16120</td>
       <td>3961</td>
     </tr>
     <tr>
-      <td>Half Start</td>
+      <td>Half End</td>
       <td>16120</td>
       <td>3961</td>
     </tr>

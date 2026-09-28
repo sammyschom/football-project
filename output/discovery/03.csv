@@ -12,39 +12,73 @@ competitions,10,match_updated_360,VARCHAR,YES
 competitions,11,match_available_360,VARCHAR,YES
 competitions,12,match_available,VARCHAR,YES
 competitions,13,filename,VARCHAR,YES
+events,1,match_id,BIGINT,YES
 events,1,id,UUID,YES
+events,2,event_id,UUID,YES
 events,2,index,BIGINT,YES
 events,3,period,BIGINT,YES
+events,3,event_index,BIGINT,YES
+events,4,period,BIGINT,YES
 events,4,timestamp,TIME,YES
+events,5,timestamp,TIME,YES
 events,5,minute,BIGINT,YES
 events,6,second,BIGINT,YES
+events,6,minute,BIGINT,YES
 events,7,type,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,7,second,BIGINT,YES
 events,8,possession,BIGINT,YES
+events,8,event_type_id,BIGINT,YES
 events,9,possession_team,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,9,event_type,VARCHAR,YES
 events,10,play_pattern,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,10,possession,BIGINT,YES
 events,11,team,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,11,possession_team_id,BIGINT,YES
 events,12,duration,DOUBLE,YES
+events,12,possession_team,VARCHAR,YES
 events,13,tactics,"STRUCT(formation BIGINT, lineup STRUCT(player STRUCT(id BIGINT, ""name"" VARCHAR), ""position"" STRUCT(id BIGINT, ""name"" VARCHAR), jersey_number BIGINT)[])",YES
+events,13,play_pattern,VARCHAR,YES
 events,14,related_events,UUID[],YES
+events,14,team_id,BIGINT,YES
+events,15,team,VARCHAR,YES
 events,15,player,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
 events,16,position,"STRUCT(id BIGINT, ""name"" VARCHAR)",YES
+events,16,player_id,BIGINT,YES
 events,17,location,DOUBLE[],YES
+events,17,player,VARCHAR,YES
 events,18,pass,"STRUCT(recipient STRUCT(id BIGINT, ""name"" VARCHAR), length DOUBLE, angle DOUBLE, height STRUCT(id BIGINT, ""name"" VARCHAR), end_location DOUBLE[], body_part STRUCT(id BIGINT, ""name"" VARCHAR), ""type"" STRUCT(id BIGINT, ""name"" VARCHAR), switch BOOLEAN, outcome STRUCT(id BIGINT, ""name"" VARCHAR), aerial_won BOOLEAN, assisted_shot_id UUID, shot_assist BOOLEAN, ""cross"" BOOLEAN, through_ball BOOLEAN, technique STRUCT(id BIGINT, ""name"" VARCHAR), inswinging BOOLEAN, miscommunication BOOLEAN, cut_back BOOLEAN, deflected BOOLEAN, no_touch BOOLEAN, straight BOOLEAN, goal_assist BOOLEAN, outswinging BOOLEAN, backheel BOOLEAN)",YES
+events,18,position_id,BIGINT,YES
 events,19,carry,STRUCT(end_location DOUBLE[]),YES
+events,19,position,VARCHAR,YES
 events,20,ball_receipt,"STRUCT(outcome STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+events,20,location_x,DOUBLE,YES
 events,21,under_pressure,BOOLEAN,YES
+events,21,location_y,DOUBLE,YES
 events,22,duel,"STRUCT(""type"" STRUCT(id BIGINT, ""name"" VARCHAR), outcome STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+events,22,under_pressure,BOOLEAN,YES
+events,23,counterpress,BOOLEAN,YES
 events,23,counterpress,BOOLEAN,YES
 events,24,interception,"STRUCT(outcome STRUCT(id BIGINT, ""name"" VARCHAR))",YES
+events,24,pass_recipient_id,BIGINT,YES
 events,25,off_camera,BOOLEAN,YES
+events,25,pass_recipient,VARCHAR,YES
 events,26,ball_recovery,"STRUCT(recovery_failure BOOLEAN, offensive BOOLEAN)",YES
+events,26,pass_length,DOUBLE,YES
 events,27,shot,"STRUCT(statsbomb_xg DOUBLE, end_location DOUBLE[], key_pass_id UUID, outcome STRUCT(id BIGINT, ""name"" VARCHAR), first_time BOOLEAN, technique STRUCT(id BIGINT, ""name"" VARCHAR), body_part STRUCT(id BIGINT, ""name"" VARCHAR), ""type"" STRUCT(id BIGINT, ""name"" VARCHAR), freeze_frame STRUCT(""location"" DOUBLE[], player STRUCT(id BIGINT, ""name"" VARCHAR), ""position"" STRUCT(id BIGINT, ""name"" VARCHAR), teammate BOOLEAN)[], aerial_won BOOLEAN, one_on_one BOOLEAN, saved_to_post BOOLEAN, deflected BOOLEAN, saved_off_target BOOLEAN, open_goal BOOLEAN, follows_dribble BOOLEAN, redirect BOOLEAN, kick_off BOOLEAN)",YES
+events,27,pass_angle,DOUBLE,YES
+events,28,pass_height,VARCHAR,YES
 events,28,goalkeeper,"STRUCT(end_location DOUBLE[], ""type"" STRUCT(id BIGINT, ""name"" VARCHAR), ""position"" STRUCT(id BIGINT, ""name"" VARCHAR), outcome STRUCT(id BIGINT, ""name"" VARCHAR), technique STRUCT(id BIGINT, ""name"" VARCHAR), body_part STRUCT(id BIGINT, ""name"" VARCHAR), shot_saved_to_post BOOLEAN, shot_saved_off_target BOOLEAN, punched_out BOOLEAN, lost_out BOOLEAN, lost_in_play BOOLEAN, success_out BOOLEAN, success_in_play BOOLEAN, saved_to_post BOOLEAN, penalty_saved_to_post BOOLEAN)",YES
 events,29,clearance,"STRUCT(left_foot BOOLEAN, body_part STRUCT(id BIGINT, ""name"" VARCHAR), right_foot BOOLEAN, head BOOLEAN, aerial_won BOOLEAN, other BOOLEAN)",YES
+events,29,pass_end_x,DOUBLE,YES
+events,30,pass_end_y,DOUBLE,YES
 events,30,block,"STRUCT(deflection BOOLEAN, offensive BOOLEAN, save_block BOOLEAN)",YES
+events,31,pass_outcome,VARCHAR,YES
 events,31,dribble,"STRUCT(nutmeg BOOLEAN, outcome STRUCT(id BIGINT, ""name"" VARCHAR), overrun BOOLEAN, no_touch BOOLEAN)",YES
 events,32,foul_committed,"STRUCT(offensive BOOLEAN, card STRUCT(id BIGINT, ""name"" VARCHAR), advantage BOOLEAN, ""type"" STRUCT(id BIGINT, ""name"" VARCHAR), penalty BOOLEAN)",YES
+events,32,carry_end_x,DOUBLE,YES
+events,33,carry_end_y,DOUBLE,YES
 events,33,foul_won,"STRUCT(defensive BOOLEAN, advantage BOOLEAN, penalty BOOLEAN)",YES
+events,34,source_filename,VARCHAR,YES
 events,34,out,BOOLEAN,YES
 events,35,miscontrol,STRUCT(aerial_won BOOLEAN),YES
 events,36,bad_behaviour,"STRUCT(card STRUCT(id BIGINT, ""name"" VARCHAR))",YES
