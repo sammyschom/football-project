@@ -17,7 +17,7 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # select which match, and which team to make the passing network from
 TEAM = "Barcelona"
-MATCH_ID = 267533
+MATCH_ID = 266424
 
 # understanding this query: 
 # the first subquery collects the match_id and all events from the events table,
@@ -31,9 +31,23 @@ WITH match_events AS (
         ) AS match_id,
         events.*
     FROM events
+),
+lineup_players AS (
+    SELECT
+        TRY_CAST(
+            regexp_extract(filename, '([0-9]+)[.]json$', 1)
+            AS BIGINT
+        ) AS match_id,
+        team_name,
+        player.player_name AS player_name,
+        position.position AS player_position
+    FROM lineups
+    CROSS JOIN UNNEST(lineup) AS player_row(player)
+    LEFT JOIN LATERAL UNNEST(player.positions) AS position_row(position)
+        ON TRUE
 )
 SELECT
-    match_id,
+    match_events.match_id,
     id AS event_id,
     index AS event_index,
     period,
@@ -43,6 +57,8 @@ SELECT
     team.name AS team,
     player.name AS passer,
     pass.recipient.name AS recipient,
+    passer_position.player_position AS passer_position,
+    recipient_position.player_position AS recipient_position,
 
     location[1] AS start_x,
     location[2] AS start_y,
@@ -55,7 +71,15 @@ SELECT
     pass.outcome.name AS pass_outcome,
     under_pressure
 FROM match_events
-WHERE match_id = ?
+LEFT JOIN lineup_players AS passer_position
+    ON passer_position.match_id = match_events.match_id
+    AND passer_position.team_name = team.name
+    AND passer_position.player_name = player.name
+LEFT JOIN lineup_players AS recipient_position
+    ON recipient_position.match_id = match_events.match_id
+    AND recipient_position.team_name = team.name
+    AND recipient_position.player_name = pass.recipient.name
+WHERE match_events.match_id = ?
   AND team.name = ?
   AND type.name = 'Pass'
   AND pass.outcome.name IS NULL
@@ -83,7 +107,7 @@ team_passes = passes_df.copy()
 # One node per player: average location of their passes
 nodes = (
     team_passes
-    .groupby(["passer"], as_index=False)
+    .groupby(["passer", "passer_position"], as_index=False)
     .agg(
         x=("start_x", "mean"),
         y=("start_y", "mean"),
@@ -146,7 +170,7 @@ for node in nodes.itertuples():
     ax.text(
         node.x,
         node.y,
-        node.passer.split()[-1],
+        f"{node.passer.split()[-1]}\n{node.passer_position}",
         ha="center",
         va="center",
         color="white",
