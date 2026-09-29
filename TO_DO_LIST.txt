@@ -15,3 +15,4 @@ What football question do I WANT TO ANSWER ?
 "A concise summary a technical stakeholder would actually read — not a wall of diagnostics, the conclusion of everything checked above " -- a great idea from the gh repo 21/09
 
 Having the end using some tableau skills would be great 
+yes, because the end result should be something for the 'stakeholders' to look at quickly.  i.e. on my linkedin could layman get what the point is? 
