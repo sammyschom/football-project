@@ -6,7 +6,7 @@ import duckdb
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DATABASE_PATH = PROJECT_ROOT / "data" / "processed" / "statsbomb.duckdb"
 
-WINDOW_SIZE = 5
+WINDOW_SIZE = 15
 
 
 CREATE_INTERVENTION_PASSES = """
@@ -138,21 +138,29 @@ def build_intervention_passes(connection: duckdb.DuckDBPyConnection) -> None:
     connection.execute(CREATE_INTERVENTION_PASSES)
 
 
-def validate_intervention_passes(connection: duckdb.DuckDBPyConnection) -> None:
+def validate_intervention_passes(
+    connection: duckdb.DuckDBPyConnection,
+) -> None:
     invalid_windows = connection.execute(
-        """
+        f"""
         SELECT COUNT(*)
         FROM (
             SELECT intervention_id
             FROM analytics.intervention_passes
             GROUP BY intervention_id
-            HAVING COUNT(*) <> 10
-                OR COUNT(*) FILTER (WHERE phase = 'pre') <> 5
-                OR COUNT(*) FILTER (WHERE phase = 'post') <> 5
-                OR COUNT(DISTINCT relative_pass_number) <> 10
-                OR MIN(relative_pass_number) <> -5
-                OR MAX(relative_pass_number) <> 5
-                OR COUNT(*) FILTER (WHERE relative_pass_number = 0) <> 0
+            HAVING COUNT(*) <> {WINDOW_SIZE * 2}
+                OR COUNT(*) FILTER (
+                    WHERE phase = 'pre'
+                ) <> {WINDOW_SIZE}
+                OR COUNT(*) FILTER (
+                    WHERE phase = 'post'
+                ) <> {WINDOW_SIZE}
+                OR COUNT(DISTINCT relative_pass_number) <> {WINDOW_SIZE * 2}
+                OR MIN(relative_pass_number) <> {-WINDOW_SIZE}
+                OR MAX(relative_pass_number) <> {WINDOW_SIZE}
+                OR COUNT(*) FILTER (
+                    WHERE relative_pass_number = 0
+                ) <> 0
         )
         """
     ).fetchone()[0]
