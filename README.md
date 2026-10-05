@@ -15,7 +15,7 @@ My on-going football project, on the topic of football, data, analytics, visuali
   - Inspected consecutive event sequences from individual matches to understand
   how the event data represents football actions over time.
 - Generated the discovery report at:
-  `output/discovery/statsbomb_discovery_report.html` (Reccomended: open in integrated browser)
+  `output/discovery/statsbomb_discovery_report.html` (Reccomended: open in integrated browser) Report generated locally, as large and only sometimes useful html file.
 - Created a simple, traditional passing network from DuckDB data using Python and Matplotlib,
   providing an initial visual check that event locations and filtering behaved
   as expected.

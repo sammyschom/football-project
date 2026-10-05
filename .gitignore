@@ -258,3 +258,6 @@ Thumbs.db
 
 # Generated packaging files
 *.egg-info/
+
+# Generated analysis output
+output/discovery/
