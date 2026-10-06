@@ -12,6 +12,20 @@ OUTPUT_DIR = PROJECT_ROOT / "output" / "analysis"
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+"""
+Ball Recovery
+Clearance
+Dispossessed
+Foul Committed
+Interception
+Pressure
+"""
+          
+# Configure the intervention type analysed by this script.
+INTERVENTION_CONFIG = {
+    "intervention_action": "Ball Recovery",
+}
+
 # keys for the graph and edges, which are used in building the edges and nodes tables
 GRAPH_KEYS = [
     "match_id",
@@ -28,12 +42,30 @@ EDGE_KEYS = [
 # note the passing number window is a param adjusted in building
 # the intervention passes table, and is not a param here.
 # PRELIM: USING JUST PREMIER LEAGUE
-def load_intervention_passes():
+def load_intervention_passes(intervention_action: str) -> pd.DataFrame:
     """Load intervention passes from the database."""
+    intervention_action = (intervention_action or "").strip()
+    if not intervention_action:
+        raise ValueError("intervention_action cannot be empty.")
+
     with duckdb.connect(str(DATABASE_PATH), read_only=True) as connection:
-        return connection.execute(
-        "SELECT * FROM analytics.intervention_passes WHERE competition_id = 2 -- Premier League" 
-         ).fetchdf()
+        df = connection.execute(
+            """
+            SELECT *
+            FROM analytics.intervention_passes
+            WHERE competition_id = 2 -- Premier League
+              AND LOWER(intervention_action) = LOWER(?)
+            """,
+            [intervention_action],
+        ).fetchdf()
+
+    if df.empty:
+        raise ValueError(
+            f"No rows found for intervention_action={intervention_action!r}. "
+            "Check the exact value in analytics.intervention_passes."
+        )
+
+    return df
 
 
 def prepare_passes(df: pd.DataFrame) -> pd.DataFrame:
@@ -62,15 +94,19 @@ def build_attempt_counts(passes: pd.DataFrame) -> pd.DataFrame:
 
 def build_frequency_edges(passes: pd.DataFrame) -> pd.DataFrame:
     """THE FIRST EDGE TYPE BUILDER: FREQUENCY EDGES, WHICH ARE JUST THE NUMBER OF PASSES BETWEEN TWO PLAYERS"""
+    passes = passes.copy()
+    passes["forward_progression"] = (
+        passes["pass_end_x"] - passes["pass_start_x"]
+    )
     edges = (
         passes
         .groupby(EDGE_KEYS, as_index=False) 
         .agg(
             pass_count=("pass_event_id", "nunique"),
+            forward_progression=("forward_progression", "sum")
         )
     )
     edges["edge_weight"] = edges["pass_count"] #!!!
-
     return edges
 
 
@@ -136,11 +172,35 @@ def forward_progression(edges: pd.DataFrame, attempted_passes: pd.DataFrame,) ->
     """Calculate how much forward progression is made by the passing network before and after the intervention.""" 
     # for before and after networks, work out the accumalated change in x (I believe). 
     # Higher forward progression is better, so a drop in forward progression is a disruption.
-    
+    progression = (
+        edges
+        .groupby(GRAPH_KEYS, as_index=False)
+        .agg(
+            forward_progression=("forward_progression", "sum"),
+        )
+    )
+
+    values = attempted_passes.merge(
+        progression,
+        on=GRAPH_KEYS,
+        how="left",
+    )
+
+    values["forward_progression"] = (
+        values["forward_progression"].fillna(0)
+    )
+
+    values["forward_progression_value"] = (
+        values["forward_progression"]
+        / values["attempted_passes"]
+    )
+
+    return values
 
 
 NETWORK_METRICS = {
     "completion": evaluate_completion,
+    "forward_progression": forward_progression,
 }
 
 
@@ -165,53 +225,61 @@ def calculate_disruption(pre_value, post_value):
     return pre_value - post_value
 
 
-def compare_values(values: pd.DataFrame) -> pd.DataFrame:
+def compare_values(
+    values: pd.DataFrame,
+    value_column: str,
+) -> pd.DataFrame:
     comparison = (
         values
         .pivot(
             index=["match_id", "intervention_id"],
             columns="phase",
-            values="completion_value",
+            values=value_column,
         )
+        .reindex(columns=["pre", "post"])
         .reset_index()
         .rename(
             columns={
-                "pre": "completion_value_pre",
-                "post": "completion_value_post",
+                "pre": "value_pre",
+                "post": "value_post",
             }
         )
     )
+
     comparison["disruption"] = calculate_disruption(
-        comparison["completion_value_pre"],
-        comparison["completion_value_post"],
+        comparison["value_pre"],
+        comparison["value_post"],
     )
+
     return comparison
 
 
-def plot_network_disruption(comparison: pd.DataFrame) -> None:
+def plot_network_disruption(
+    comparison: pd.DataFrame,
+    metric_label: str,
+) -> None:
+
     data = comparison.dropna(
-        subset=["completion_value_pre", "completion_value_post"]
+        subset=["value_pre", "value_post"]
     )
 
     number_of_interventions = data["intervention_id"].nunique()
 
-    mean_pre = data["completion_value_pre"].mean()
-    mean_post = data["completion_value_post"].mean()
+    mean_pre = data["value_pre"].mean()
+    mean_post = data["value_post"].mean()
     mean_disruption = data["disruption"].mean()
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
-    # One faint line per intervention
     for row in data.itertuples():
         ax.plot(
             ["Before", "After"],
-            [row.completion_value_pre, row.completion_value_post],
+            [row.value_pre, row.value_post],
             color="grey",
             alpha=0.12,
             linewidth=0.8,
         )
 
-    # Average before/after values
     ax.plot(
         ["Before", "After"],
         [mean_pre, mean_post],
@@ -222,12 +290,16 @@ def plot_network_disruption(comparison: pd.DataFrame) -> None:
         label="Average",
     )
 
-    ax.set_ylim(0, 1.05)
-    ax.set_ylabel("Pass completion rate")
+    ax.set_ylabel(metric_label)
+
     ax.set_title(
-        "Passing Network Completion Before and After Defensive Intervention\n"
-        f"(n = {number_of_interventions:,} pressure interventions)"
+    f"{metric_label} Before and After "
+    f"{INTERVENTION_CONFIG['intervention_action']} Intervention\n"
+    f"(n = {number_of_interventions:,} "
+    f"{INTERVENTION_CONFIG['intervention_action'].lower()} interventions)"
     )
+    
+
     ax.legend()
 
     ax.text(
@@ -236,36 +308,80 @@ def plot_network_disruption(comparison: pd.DataFrame) -> None:
         f"Average disruption: {mean_disruption:+.3f}",
         transform=ax.transAxes,
         ha="center",
-        color="#d62728",
     )
 
     plt.show()
 
+METRIC_CONFIG = {
+    "completion": {
+        "value_column": "completion_value",
+        "label": "Pass completion rate",
+    },
+    "forward_progression": {
+        "value_column": "forward_progression_value",
+        "label": "Forward progression per attempted pass",
+    },
+}
 
 def main() -> None:
-    intervention_passes = load_intervention_passes()
-    valid_passes = prepare_passes(intervention_passes)
 
-    attempted_passes = build_attempt_counts(valid_passes)
 
-    completed_passes = valid_passes[valid_passes["pass_outcome"].isna()].copy()
-
-    frequency_edges = build_edges(completed_passes, "frequency")
-
-    completion_values = evaluate_network(
-        frequency_edges,
-        attempted_passes,
-        "completion",
+    intervention_passes = load_intervention_passes(
+        INTERVENTION_CONFIG["intervention_action"]
     )
 
-    comparison = compare_values(completion_values)
-    print(comparison.head(20).to_string(index=False))
-    print(f"Mean disruption: {comparison['disruption'].mean():+.3f}")
-    print(
-        "Positive disruption share: "
-        f"{(comparison['disruption'] > 0).mean():.1%}"
+    valid_passes = prepare_passes(
+        intervention_passes
     )
-    plot_network_disruption(comparison)
+
+    attempted_passes = build_attempt_counts(
+        valid_passes
+    )
+
+    completed_passes = valid_passes[
+        valid_passes["pass_outcome"].isna()
+    ].copy()
+
+    edges = build_edges(
+        completed_passes,
+        "frequency",
+    )
+
+    for metric, config in METRIC_CONFIG.items():
+
+        values = evaluate_network(
+            edges,
+            attempted_passes,
+            metric,
+        )
+
+        comparison = compare_values(
+            values,
+            config["value_column"],
+        )
+
+        print(f"\n=== {metric.upper()} ===")
+
+        print(
+            comparison
+            .head(20)
+            .to_string(index=False)
+        )
+
+        print(
+            f"Mean disruption: "
+            f"{comparison['disruption'].mean():+.3f}"
+        )
+
+        print(
+            "Positive disruption share: "
+            f"{(comparison['disruption'] > 0).mean():.1%}"
+        )
+
+        plot_network_disruption(
+            comparison,
+            config["label"],
+        )
 
 if __name__ == "__main__":
     main()

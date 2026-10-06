@@ -31,15 +31,14 @@ My on-going football project, on the topic of football, data, analytics, visuali
   relative position from `-5` through `-1` or `+1` through `+5`.
   Interventions without five passes on both sides are excluded by design.
 
-  This is the SQL/Python boundary: SQL decides which passes belong to an
+- This is the SQL/Python boundary: SQL decides which passes belong to an
   intervention; Python constructs `Gpre`, `Gpost`, network values, and
   disruption measures.
 
-  Rebuild it with:
+- Rebuild it with:
   `python3 src/football_data/features/build_intervention_passes.py`
 
-  Created `main_analysis` which reads in the `analytics.intervention_passes` file, takes only passes with a passer AND receiver, 
-  created the first edge connection, which is just a simple pass frequency. More edge metrics can be added in due course with `EDGE_BUILDER`, currently outputs each intervention as a row, and the number of connections, sum which is the total number of pass events (validates the `WINDOW_SIZE`), and the max number of those edges.
+- Created `main_analysis` which reads in the `analytics.intervention_passes` file, takes   only passes with a passer AND receiver, created the first edge connection, which is just a simple pass frequency. More edge metrics can be added in due course with `EDGE_BUILDER`, currently outputs each intervention as a row, and: the number of connections, sum which is the total number of pass events (validates; should be the same as the `WINDOW_SIZE`), and the max number of those edges.
 
 
 ### Next up

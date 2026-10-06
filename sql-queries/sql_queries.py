@@ -14,22 +14,10 @@ con = duckdb.connect(str(DATABASE_PATH), read_only=True)
 # %%
 match_query = """
 
-SELECT
-    match_id,
-    match_date,
-    competition.competition_name AS competition,
-    season.season_name AS season,
-    home_team.home_team_name AS home_team,
-    away_team.away_team_name AS away_team,
-    home_score,
-    away_score
-FROM matches
-WHERE season.season_name = '2015/2016'
-  AND (
-        home_team.home_team_name = 'Barcelona'
-        OR away_team.away_team_name = 'Barcelona'
-      )
-ORDER BY match_date;
+SELECT DISTINCT intervention_action
+FROM analytics.intervention_passes
+WHERE competition_id = 2
+ORDER BY intervention_action;
 """
 
 matches_df = con.execute(match_query).fetchdf()
