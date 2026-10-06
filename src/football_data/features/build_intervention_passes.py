@@ -11,7 +11,7 @@ WINDOW_SIZE = 15
 
 CREATE_INTERVENTION_PASSES = """
 CREATE OR REPLACE TABLE analytics.intervention_passes AS
-WITH pressure_events AS (
+WITH intervention_events AS (
     SELECT
         match_id,
         event_id AS intervention_id,
@@ -47,11 +47,21 @@ WITH pressure_events AS (
         match_context.match_status
     FROM staging.events
     JOIN matches AS match_context USING (match_id)
-    WHERE event_type = 'Pressure'
-      AND team_id IS NOT NULL
-            AND player_id IS NOT NULL
+    WHERE team_id IS NOT NULL
+      AND player_id IS NOT NULL
       AND possession_team_id IS NOT NULL
       AND team_id <> possession_team_id
+      AND event_type IN (
+    'Pressure',
+    'Tackle',
+    'Interception',
+    'Blocked Pass',
+    'Dispossessed',
+    'Foul Committed',
+    'Ball Recovery',
+    'Clearance'
+)
+
 ), opponent_passes AS (
     SELECT
         match_id,
@@ -80,36 +90,36 @@ WITH pressure_events AS (
       AND pass_recipient_id IS NOT NULL
 ), candidate_passes AS (
     SELECT
-        pressure.*,
+        intervention.*,
         passes.* EXCLUDE (match_id, possession, team_id, team),
         CASE
-            WHEN passes.pass_event_index < pressure.intervention_event_index
+            WHEN passes.pass_event_index < intervention.intervention_event_index
                 THEN 'pre'
             ELSE 'post'
         END AS phase,
         ROW_NUMBER() OVER (
-            PARTITION BY pressure.intervention_id,
+            PARTITION BY intervention.intervention_id,
                 CASE
-                    WHEN passes.pass_event_index < pressure.intervention_event_index
+                    WHEN passes.pass_event_index < intervention.intervention_event_index
                         THEN 'pre'
                     ELSE 'post'
                 END
             ORDER BY
                 CASE
-                    WHEN passes.pass_event_index < pressure.intervention_event_index
+                    WHEN passes.pass_event_index < intervention.intervention_event_index
                         THEN passes.pass_event_index
                 END DESC,
                 CASE
-                    WHEN passes.pass_event_index > pressure.intervention_event_index
+                    WHEN passes.pass_event_index > intervention.intervention_event_index
                         THEN passes.pass_event_index
                 END ASC
         ) AS window_pass_number
-    FROM pressure_events AS pressure
+    FROM intervention_events AS intervention
     JOIN opponent_passes AS passes
-      ON passes.match_id = pressure.match_id
-     AND passes.possession = pressure.pressured_possession
-     AND passes.team_id = pressure.opponent_team_id
-     AND passes.pass_event_index <> pressure.intervention_event_index
+      ON passes.match_id = intervention.match_id
+     AND passes.possession = intervention.pressured_possession
+     AND passes.team_id = intervention.opponent_team_id
+     AND passes.pass_event_index <> intervention.intervention_event_index
 ), selected_passes AS (
     SELECT *
     FROM candidate_passes
@@ -134,6 +144,7 @@ ORDER BY match_id, intervention_event_index, phase, window_pass_number
 
 
 def build_intervention_passes(connection: duckdb.DuckDBPyConnection) -> None:
+    """Build pass windows for every eligible intervention event type."""
     connection.execute("CREATE SCHEMA IF NOT EXISTS analytics")
     connection.execute(CREATE_INTERVENTION_PASSES)
 
