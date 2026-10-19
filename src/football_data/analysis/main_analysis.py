@@ -2,6 +2,7 @@
 import duckdb
 import pandas as pd
 from pathlib import Path
+from typing import Dict, Optional
 import matplotlib.pyplot as plt
 
 
@@ -25,9 +26,10 @@ Tackle
 (50_50)
 """
           
-# Configure the intervention type analysed by this script.
+# Set to a specific action such as "Tackle" to filter the analysis.
+# None analyses every eligible intervention action.
 INTERVENTION_CONFIG = {
-    "intervention_action": "Tackle",
+    "intervention_action": None,
 }
 
 # keys for the graph and edges, which are used in building the edges and nodes tables
@@ -46,27 +48,37 @@ EDGE_KEYS = [
 # note the passing number window is a param adjusted in building
 # the intervention passes table, and is not a param here.
 # PRELIM: USING JUST PREMIER LEAGUE
-def load_intervention_passes(intervention_action: str) -> pd.DataFrame:
+def load_intervention_passes(
+    intervention_action: Optional[str] = None,
+) -> pd.DataFrame:
     """Load intervention passes from the database."""
-    intervention_action = (intervention_action or "").strip()
-    if not intervention_action:
-        raise ValueError("intervention_action cannot be empty.")
-
-
-# AND competition_id = 2 -- Premier League
+    action_filter = (intervention_action or "").strip()
     with duckdb.connect(str(DATABASE_PATH), read_only=True) as connection:
-        df = connection.execute(
-            """
-            SELECT *
-            FROM analytics.intervention_passes
-            WHERE LOWER(intervention_action) = LOWER(?)
-            """,
-            [intervention_action],
-        ).fetchdf()
+        if action_filter:
+            df = connection.execute(
+                """
+                SELECT *
+                FROM analytics.intervention_passes
+                WHERE LOWER(intervention_action) = LOWER(?)
+                """,
+                [action_filter],
+            ).fetchdf()
+        else:
+            df = connection.execute(
+                """
+                SELECT *
+                FROM analytics.intervention_passes
+                """
+            ).fetchdf()
 
     if df.empty:
+        action_description = (
+            f"intervention_action={action_filter!r}"
+            if action_filter
+            else "all intervention actions"
+        )
         raise ValueError(
-            f"No rows found for intervention_action={intervention_action!r}. "
+            f"No rows found for {action_description}. "
             "Check the exact value in analytics.intervention_passes."
         )
 
@@ -204,42 +216,51 @@ def forward_progression(edges: pd.DataFrame, attempted_passes: pd.DataFrame,) ->
 
 
 def density(edges: pd.DataFrame, attempted_passes: pd.DataFrame,) -> pd.DataFrame:
-    """Calculate the density of the passing network before and after the intervention."""
-    # Density in this instance refers to how many of the possible player-to-player connections are actually used in the passing network.
-    # Density = actual edges / possible edges
-    # For each one, the number of possible edges is:
-    # n * (n - 1) where n is the number of unique players in the network.
-    # But we treat the network as un - directed for now, so we divide by 2
-    
-    player_counts = (
-        edges
-        .groupby(GRAPH_KEYS, as_index=False)
-        .agg(
-            unique_players=("passer_id", "nunique"),
-        )
-    )
+    """Calculate directed passing-network density.
 
+    Nodes are the union of passers and receivers. Each distinct passer to
+    receiver pair is one directed edge, so the maximum is n * (n - 1).
+    """
+    node_frames = [
+        edges[GRAPH_KEYS + ["passer_id"]].rename(
+            columns={"passer_id": "player_id"}
+        ),
+        edges[GRAPH_KEYS + ["receiver_id"]].rename(
+            columns={"receiver_id": "player_id"}
+        ),
+    ]
+    nodes = pd.concat(node_frames, ignore_index=True).drop_duplicates()
+    player_counts = (
+        nodes
+        .groupby(GRAPH_KEYS, as_index=False)
+        .agg(unique_players=("player_id", "nunique"))
+    )
     edges_count = (
         edges
         .groupby(GRAPH_KEYS, as_index=False)
-        .agg(
-            actual_edges=("edge_weight", "count"),
-        ))
-
-    values = player_counts.merge(
+        .agg(actual_edges=("edge_weight", "size"))
+    )
+    values = attempted_passes[GRAPH_KEYS].drop_duplicates().merge(
+        player_counts,
+        on=GRAPH_KEYS,
+        how="left",
+    ).merge(
         edges_count,
         on=GRAPH_KEYS,
         how="left",
     )
-
+    values[["unique_players", "actual_edges"]] = values[
+        ["unique_players", "actual_edges"]
+    ].fillna(0)
     values["possible_edges"] = (
-        values["unique_players"] * (values["unique_players"] - 1) / 2
+        values["unique_players"] * (values["unique_players"] - 1)
     )
-
-    values["density"] = (
-        values["actual_edges"] / values["possible_edges"]
+    values["density"] = 0.0
+    non_empty_network = values["possible_edges"] > 0
+    values.loc[non_empty_network, "density"] = (
+        values.loc[non_empty_network, "actual_edges"]
+        / values.loc[non_empty_network, "possible_edges"]
     )
-
     return values
 
 
@@ -338,11 +359,13 @@ def plot_network_disruption(
 
     ax.set_ylabel(metric_label)
 
+    configured_action = INTERVENTION_CONFIG["intervention_action"]
+    action_label = configured_action or "All"
     ax.set_title(
-    f"{metric_label} Before and After "
-    f"{INTERVENTION_CONFIG['intervention_action']} Intervention\n"
-    f"(n = {number_of_interventions:,} "
-    f"{INTERVENTION_CONFIG['intervention_action'].lower()} interventions)"
+        f"{metric_label} Before and After "
+        f"{action_label} Intervention\n"
+        f"(n = {number_of_interventions:,} "
+        f"{action_label.lower()} interventions)"
     )
     
 
@@ -373,7 +396,153 @@ METRIC_CONFIG = {
     },
 }
 
-def main() -> None:
+
+MODEL_COLUMNS = [
+    "match_id",
+    "intervention_id",
+    "defender_id",
+    "defender",
+    "intervention_action",
+    "G_pre",
+    "G_post",
+    "D",
+]
+
+
+def combine_modeling_datasets(
+    datasets: Dict[str, pd.DataFrame],
+) -> pd.DataFrame:
+    """Combine metric-specific intervention rows into one wide dataset."""
+    if not datasets:
+        raise ValueError("At least one metric dataset is required.")
+
+    key_columns = ["match_id", "intervention_id"]
+    first_dataset = next(iter(datasets.values()))
+    combined = first_dataset[
+        [
+            *key_columns,
+            "defender_id",
+            "defender",
+            "intervention_action",
+        ]
+    ].copy()
+
+    for metric, dataset in datasets.items():
+        if not dataset.set_index(key_columns).index.is_unique:
+            raise ValueError(
+                f"{metric} modeling dataset has duplicate interventions."
+            )
+
+        metric_values = dataset[
+            [*key_columns, "G_pre", "G_post", "D"]
+        ].rename(
+            columns={
+                "G_pre": f"{metric}_pre",
+                "G_post": f"{metric}_post",
+                "D": f"{metric}_D",
+            }
+        )
+        combined = combined.merge(
+            metric_values,
+            on=key_columns,
+            how="outer",
+            validate="one_to_one",
+        )
+
+    if combined.isna().any().any():
+        raise ValueError(
+            "Combined modeling dataset contains missing values after "
+            "joining metric datasets."
+        )
+
+    return combined.sort_values(key_columns).reset_index(drop=True)
+
+
+def build_modeling_dataset(
+    passes: pd.DataFrame,
+    completed_passes: pd.DataFrame,
+    attempted_passes: pd.DataFrame,
+    metric: str,
+) -> pd.DataFrame:
+    """Build one modeling row per intervention.
+
+    ``G_pre`` and ``G_post`` are scalar network values. ``D`` is the
+    disruption for the selected network metric: V(G_pre) - V(G_post).
+    """
+    try:
+        config = METRIC_CONFIG[metric]
+    except KeyError as error:
+        available = ", ".join(METRIC_CONFIG)
+        raise ValueError(
+            f"Unknown modeling metric {metric!r}. Choose from: {available}"
+        ) from error
+
+    intervention_keys = ["match_id", "intervention_id"]
+    metadata_columns = [
+        *intervention_keys,
+        "defender_id",
+        "defender",
+        "intervention_action",
+    ]
+    metadata = passes[metadata_columns].drop_duplicates()
+    inconsistent_metadata = (
+        metadata
+        .groupby(intervention_keys, as_index=False)
+        .size()
+        .loc[lambda rows: rows["size"] > 1]
+    )
+    if not inconsistent_metadata.empty:
+        raise ValueError(
+            "An intervention has inconsistent metadata across its pass rows: "
+            f"{inconsistent_metadata[intervention_keys].to_dict(orient='records')}"
+        )
+
+    edges = build_edges(completed_passes, "frequency")
+    values = evaluate_network(
+        edges,
+        attempted_passes,
+        metric,
+    )
+    comparison = compare_values(values, config["value_column"])
+
+    modeling_dataset = (
+        metadata
+        .merge(
+            comparison[
+                [
+                    "match_id",
+                    "intervention_id",
+                    "value_pre",
+                    "value_post",
+                    "disruption",
+                ]
+            ],
+            on=["match_id", "intervention_id"],
+            how="inner",
+        )
+        .rename(
+            columns={
+                "value_pre": "G_pre",
+                "value_post": "G_post",
+                "disruption": "D",
+            }
+        )
+    )
+
+    missing_columns = [
+        column for column in MODEL_COLUMNS if column not in modeling_dataset
+    ]
+    if missing_columns:
+        raise ValueError(
+            f"Modeling dataset is missing required columns: {missing_columns}"
+        )
+
+    return modeling_dataset[MODEL_COLUMNS].sort_values(
+        ["match_id", "intervention_id"]
+    ).reset_index(drop=True)
+
+
+def main(show_plots: bool = True) -> None:
 
 
     intervention_passes = load_intervention_passes(
@@ -397,6 +566,7 @@ def main() -> None:
         "frequency",
     )
 
+    metric_datasets = {}
     for metric, config in METRIC_CONFIG.items():
 
         values = evaluate_network(
@@ -409,6 +579,14 @@ def main() -> None:
             values,
             config["value_column"],
         )
+
+        modeling_dataset = build_modeling_dataset(
+            valid_passes,
+            completed_passes,
+            attempted_passes,
+            metric,
+        )
+        metric_datasets[metric] = modeling_dataset
 
         print(f"\n=== {metric.upper()} ===")
 
@@ -428,10 +606,23 @@ def main() -> None:
             f"{(comparison['disruption'] > 0).mean():.1%}"
         )
 
-        plot_network_disruption(
-            comparison,
-            config["label"],
-        )
+        if show_plots:
+            plot_network_disruption(
+                comparison,
+                config["label"],
+            )
+
+    combined_dataset = combine_modeling_datasets(metric_datasets)
+    combined_dataset.to_csv(
+        OUTPUT_DIR / "modeling_dataset.csv",
+        index=False,
+    )
+    print(
+        f"\n=== COMBINED MODELING DATASET ===\n"
+        f"Rows: {len(combined_dataset):,}\n"
+        f"Columns: {len(combined_dataset.columns):,}"
+    )
+
 
 if __name__ == "__main__":
     main()
