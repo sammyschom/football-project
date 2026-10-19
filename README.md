@@ -40,6 +40,35 @@ My on-going football project, on the topic of football, data, analytics, visuali
 
 - Created `main_analysis` which reads in the `analytics.intervention_passes` file, takes   only passes with a passer AND receiver, created the first edge connection, which is just a simple pass frequency. More edge metrics can be added in due course with `EDGE_BUILDER`, currently outputs each intervention as a row, and: the number of connections, sum which is the total number of pass events (validates; should be the same as the `WINDOW_SIZE`), and the max number of those edges.
 
+- `main_analysis` now takes whichever defensive intervention you have selected near the top of the file. Reads the intervention label from the config at the top of the file. The main is now streamlined with `METRIC_CONFIG`
+
+- Can filter for competition with the commented code within `def load_intervention_passes`
+
+- Code currently works:
+it prints per-intervention pre/post disruption summaries for:
+completion rate
+forward progression
+it plots average disruption for each metric
+
+- The analysis writes one canonical modeling dataset to
+  `output/analysis/modeling_dataset.csv`. It has one row per complete
+  intervention and contains shared intervention metadata plus
+  `completion_pre`, `completion_post`, `completion_D`,
+  `forward_progression_pre`, `forward_progression_post`,
+  `forward_progression_D`, `density_pre`, `density_post`, and `density_D`.
+  The source `analytics.intervention_passes` table repeats intervention metadata
+  on each pass row by design; it is not the central modeling dataset.
+
+- Run the complete current build pipeline from the repository root with:
+  `python PIPELINE.py`. This rebuilds `staging.events`,
+  `analytics.intervention_passes` and the combined modeling CSV in dependency
+  order without opening analysis plot windows. Run
+  `python -m football_data.analysis.main_analysis` separately when you want
+  the plots.
+
+- By default, the modeling pipeline includes every eligible intervention
+  action. Set `INTERVENTION_CONFIG["intervention_action"]` to a value such as
+  `"Tackle"` in `main_analysis.py` when a single-action analysis is required.
 
 ### Next up
 - Load one intervention from `analytics.intervention_passes` in Python and
