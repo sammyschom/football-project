@@ -6,7 +6,7 @@ import duckdb
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DATABASE_PATH = PROJECT_ROOT / "data" / "processed" / "statsbomb.duckdb"
 
-WINDOW_SIZE = 15
+WINDOW_SIZE = 10
 
 
 CREATE_INTERVENTION_PASSES = """
@@ -31,7 +31,10 @@ WITH intervention_events AS (
         possession_team AS opponent_team,
         location_x AS intervention_location_x,
         location_y AS intervention_location_y,
-        event_type AS intervention_action,
+        CASE
+    WHEN event_type = 'Duel' THEN duel_type
+    ELSE event_type
+END AS intervention_action,
         match_context.match_date,
         match_context.kick_off,
         match_context.competition.competition_id AS competition_id,
@@ -51,16 +54,23 @@ WITH intervention_events AS (
       AND player_id IS NOT NULL
       AND possession_team_id IS NOT NULL
       AND team_id <> possession_team_id
-      AND event_type IN (
-    'Pressure',
-    'Tackle',
-    'Interception',
-    'Blocked Pass',
-    'Dispossessed',
-    'Foul Committed',
-    'Ball Recovery',
-    'Clearance'
+      AND (
+    event_type IN (
+        'Pressure',
+        'Interception',
+        'Blocked Pass',
+        'Dispossessed',
+        'Foul Committed',
+        'Ball Recovery',
+        'Clearance',
+        'Block'
+    )
+    OR (
+        event_type = 'Duel'
+        AND duel_type IN ('Tackle', '50/50')
+    )
 )
+
 
 ), opponent_passes AS (
     SELECT

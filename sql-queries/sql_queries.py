@@ -14,9 +14,9 @@ con = duckdb.connect(str(DATABASE_PATH), read_only=True)
 # %%
 match_query = """
 
-SELECT DISTINCT intervention_action
+SELECT intervention_action, COUNT(DISTINCT intervention_id)
 FROM analytics.intervention_passes
-WHERE competition_id = 2
+GROUP BY intervention_action
 ORDER BY intervention_action;
 """
 

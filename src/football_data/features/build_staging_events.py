@@ -38,6 +38,7 @@ SELECT
     player.name AS player,
     position.id AS position_id,
     position.name AS position,
+    duel.type.name AS duel_type,
     location[1] AS location_x,
     location[2] AS location_y,
     under_pressure,
