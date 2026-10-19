@@ -19,11 +19,15 @@ Dispossessed
 Foul Committed
 Interception
 Pressure
+Duel
+Block
+Tackle
+(50_50)
 """
           
 # Configure the intervention type analysed by this script.
 INTERVENTION_CONFIG = {
-    "intervention_action": "Ball Recovery",
+    "intervention_action": "Tackle",
 }
 
 # keys for the graph and edges, which are used in building the edges and nodes tables
@@ -48,13 +52,14 @@ def load_intervention_passes(intervention_action: str) -> pd.DataFrame:
     if not intervention_action:
         raise ValueError("intervention_action cannot be empty.")
 
+
+# AND competition_id = 2 -- Premier League
     with duckdb.connect(str(DATABASE_PATH), read_only=True) as connection:
         df = connection.execute(
             """
             SELECT *
             FROM analytics.intervention_passes
-            WHERE competition_id = 2 -- Premier League
-              AND LOWER(intervention_action) = LOWER(?)
+            WHERE LOWER(intervention_action) = LOWER(?)
             """,
             [intervention_action],
         ).fetchdf()
@@ -198,9 +203,50 @@ def forward_progression(edges: pd.DataFrame, attempted_passes: pd.DataFrame,) ->
     return values
 
 
+def density(edges: pd.DataFrame, attempted_passes: pd.DataFrame,) -> pd.DataFrame:
+    """Calculate the density of the passing network before and after the intervention."""
+    # Density in this instance refers to how many of the possible player-to-player connections are actually used in the passing network.
+    # Density = actual edges / possible edges
+    # For each one, the number of possible edges is:
+    # n * (n - 1) where n is the number of unique players in the network.
+    # But we treat the network as un - directed for now, so we divide by 2
+    
+    player_counts = (
+        edges
+        .groupby(GRAPH_KEYS, as_index=False)
+        .agg(
+            unique_players=("passer_id", "nunique"),
+        )
+    )
+
+    edges_count = (
+        edges
+        .groupby(GRAPH_KEYS, as_index=False)
+        .agg(
+            actual_edges=("edge_weight", "count"),
+        ))
+
+    values = player_counts.merge(
+        edges_count,
+        on=GRAPH_KEYS,
+        how="left",
+    )
+
+    values["possible_edges"] = (
+        values["unique_players"] * (values["unique_players"] - 1) / 2
+    )
+
+    values["density"] = (
+        values["actual_edges"] / values["possible_edges"]
+    )
+
+    return values
+
+
 NETWORK_METRICS = {
     "completion": evaluate_completion,
     "forward_progression": forward_progression,
+    "density": density,
 }
 
 
@@ -287,7 +333,7 @@ def plot_network_disruption(
         marker="o",
         markersize=9,
         linewidth=3,
-        label="Average",
+        label=None,
     )
 
     ax.set_ylabel(metric_label)
@@ -320,6 +366,10 @@ METRIC_CONFIG = {
     "forward_progression": {
         "value_column": "forward_progression_value",
         "label": "Forward progression per attempted pass",
+    },
+    "density": {
+        "value_column": "density",
+        "label": "Passing network density",
     },
 }
 
