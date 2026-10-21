@@ -1,7 +1,11 @@
+# Staging file:
+# This script creates a staging table for events from the StatsBomb data, 
+# which is used as a source for further analysis and feature engineering. 
+# The staging table is created in the DuckDB database and includes relevant columns from the original events data, 
+# along with additional metadata such as match context.
+
 from pathlib import Path
-
 import duckdb
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DATABASE_PATH = PROJECT_ROOT / "data" / "processed" / "statsbomb.duckdb"
@@ -58,12 +62,16 @@ FROM source_events
 """
 
 
-def build_staging_events(connection: duckdb.DuckDBPyConnection) -> None:
+def build_staging_events(connection: duckdb.DuckDBPyConnection):
     connection.execute("CREATE SCHEMA IF NOT EXISTS staging")
     connection.execute(CREATE_STAGING_EVENTS)
 
 
-def validate_staging_events(connection: duckdb.DuckDBPyConnection) -> None:
+def validate_staging_events(connection: duckdb.DuckDBPyConnection):
+    """
+    Validates that the staging.events table has no duplicate keys and no missing identifiers.
+    
+    """
     duplicate_keys = connection.execute(
         """
         SELECT COUNT(*)
@@ -92,11 +100,11 @@ def validate_staging_events(connection: duckdb.DuckDBPyConnection) -> None:
         )
 
 
-def main() -> None:
+def main():
     with duckdb.connect(str(DATABASE_PATH)) as connection:
         build_staging_events(connection)
         validate_staging_events(connection)
-
+        
         summary = connection.execute(
             """
             SELECT
@@ -113,7 +121,6 @@ def main() -> None:
         f"{summary[1]:,} matches, "
         f"{summary[2]:,} event types"
     )
-
 
 if __name__ == "__main__":
     main()

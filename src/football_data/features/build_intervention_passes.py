@@ -2,13 +2,15 @@ from pathlib import Path
 
 import duckdb
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DATABASE_PATH = PROJECT_ROOT / "data" / "processed" / "statsbomb.duckdb"
 
+# HARDCODED WINDOW SIZE FOR PASSES BEFORE AND AFTER INTERVENTION 
+# SHOULD THIS BE A PARAMETER?!...
 WINDOW_SIZE = 10
 
-
+# Intervention passes table creation SQL query
+# check here for exact namings of columns, as staging.events pulls from here
 CREATE_INTERVENTION_PASSES = """
 CREATE OR REPLACE TABLE analytics.intervention_passes AS
 WITH intervention_events AS (
@@ -54,6 +56,7 @@ END AS intervention_action,
       AND player_id IS NOT NULL
       AND possession_team_id IS NOT NULL
       AND team_id <> possession_team_id
+      AND competition.competition_name = 'Premier League'
       AND (
     event_type IN (
         'Pressure',
@@ -152,16 +155,19 @@ JOIN complete_interventions USING (intervention_id)
 ORDER BY match_id, intervention_event_index, phase, window_pass_number
 """.format(window_size=WINDOW_SIZE)
 
-
-def build_intervention_passes(connection: duckdb.DuckDBPyConnection) -> None:
+# wrapper function that performs the SQL query above
+def build_intervention_passes(connection: duckdb.DuckDBPyConnection):
     """Build pass windows for every eligible intervention event type."""
     connection.execute("CREATE SCHEMA IF NOT EXISTS analytics")
     connection.execute(CREATE_INTERVENTION_PASSES)
 
 
-def validate_intervention_passes(
-    connection: duckdb.DuckDBPyConnection,
-) -> None:
+def validate_intervention_passes(connection: duckdb.DuckDBPyConnection,):
+    """
+    validates that the intervention_passes table has the correct number of passes for each intervention, 
+    and that there are no duplicate intervention/pass pairs
+    Raises a ValueError if any issues are found
+    """
     invalid_windows = connection.execute(
         f"""
         SELECT COUNT(*)
@@ -211,6 +217,7 @@ def main() -> None:
         build_intervention_passes(connection)
         validate_intervention_passes(connection)
 
+        # Print summary of the intervention_passes table
         summary = connection.execute(
             """
             SELECT

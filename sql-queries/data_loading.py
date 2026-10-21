@@ -4,7 +4,6 @@
 # find out if this will reset the duck db if run ??? 
 
 from pathlib import Path
-
 import duckdb
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent

@@ -13,6 +13,7 @@ OUTPUT_DIR = PROJECT_ROOT / "output" / "analysis"
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# For reference, the eligible intervention actions (so far) are:
 """
 Ball Recovery
 Clearance
@@ -27,12 +28,13 @@ Tackle
 """
           
 # Set to a specific action such as "Tackle" to filter the analysis.
-# None analyses every eligible intervention action.
+# None analyses every eligible intervention action!
 INTERVENTION_CONFIG = {
     "intervention_action": None,
 }
 
 # keys for the graph and edges, which are used in building the edges and nodes tables
+# how i identify and group my data
 GRAPH_KEYS = [
     "match_id",
     "intervention_id",
@@ -40,19 +42,22 @@ GRAPH_KEYS = [
 ]
 
 EDGE_KEYS = [
-    *GRAPH_KEYS,
+    *GRAPH_KEYS, #  * unpacks the list into the new list
     "passer_id",
     "receiver_id",
 ]
 
-# note the passing number window is a param adjusted in building
-# the intervention passes table, and is not a param here.
+# (remember the passing number window is a param adjusted in building
+# the intervention passes table, and is not a param here.)
+
+
 # PRELIM: USING JUST PREMIER LEAGUE
-def load_intervention_passes(
-    intervention_action: Optional[str] = None,
-) -> pd.DataFrame:
-    """Load intervention passes from the database."""
-    action_filter = (intervention_action or "").strip()
+def load_intervention_passes(intervention_action: Optional[str] = None,):
+    """
+    Load intervention passes from the database.
+    Returns pandas dataframe with intervention passes, optionally filtered by intervention_action.
+    """
+    action_filter = (intervention_action or "").strip() # validate: leading or trailing whitespace, and convert None to empty string
     with duckdb.connect(str(DATABASE_PATH), read_only=True) as connection:
         if action_filter:
             df = connection.execute(
@@ -85,7 +90,7 @@ def load_intervention_passes(
     return df
 
 
-def prepare_passes(df: pd.DataFrame) -> pd.DataFrame:
+def prepare_passes(df: pd.DataFrame):
     """Keep passes only if there is a known passer and receiver,
        other wise its not a closed passing network!"""
     return df[
@@ -94,23 +99,23 @@ def prepare_passes(df: pd.DataFrame) -> pd.DataFrame:
     ].copy()
 
 
-def build_attempt_counts(passes: pd.DataFrame) -> pd.DataFrame:
-    """Build a table of attempted passes for each intervention."""
+def build_attempt_counts(passes: pd.DataFrame):
+    """Build a table and count number  of attempted passes for each intervention."""
     return (
         passes
-        .groupby(GRAPH_KEYS, as_index=False)
-        .agg(
+        .groupby(GRAPH_KEYS, as_index=False) # seperates the data into groups based on the specified keys, then prepares for aggregation
+        .agg(                                # one row per intervention-phase network 
             attempted_passes=("pass_event_id", "nunique"),
         )
     )
-
 
 #===================================
 # EDGES
 #===================================
 
-def build_frequency_edges(passes: pd.DataFrame) -> pd.DataFrame:
-    """THE FIRST EDGE TYPE BUILDER: FREQUENCY EDGES, WHICH ARE JUST THE NUMBER OF PASSES BETWEEN TWO PLAYERS"""
+# DOES THIS NEED TO BE DOING FORWARD_PROGRESSION HERE? METRIC? 
+def build_frequency_edges(passes: pd.DataFrame):
+    """THE FIRST EDGE TYPE BUILDER: FREQUENCY EDGES, WHICH ARE JUST THE NUMBER OF PASSES BETWEEN TWO PLAYERS -- directed!"""
     passes = passes.copy()
     passes["forward_progression"] = (
         passes["pass_end_x"] - passes["pass_start_x"]
@@ -132,10 +137,7 @@ EDGE_BUILDERS = {
 }
 
 
-def build_edges(
-    passes: pd.DataFrame,
-    representation: str,
-) -> pd.DataFrame:
+def build_edges(passes: pd.DataFrame, representation: str,):
     try:
         builder = EDGE_BUILDERS[representation]
     except KeyError as error:
@@ -153,10 +155,9 @@ def build_edges(
 #===================================
 
 
-def evaluate_completion(
-    edges: pd.DataFrame,
-    attempted_passes: pd.DataFrame,
-) -> pd.DataFrame:
+def evaluate_completion(edges: pd.DataFrame, attempted_passes: pd.DataFrame,):
+    """Calculate pass completion rate for each intervention-phase network."""
+    
     completed = (
         edges
         .groupby(GRAPH_KEYS, as_index=False)
